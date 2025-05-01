@@ -1,0 +1,9 @@
+# .clang-format
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: Always
+IndentCaseLabels: true
+BreakBeforeBraces: Attach
+ColumnLimit: 120
+AlwaysBreakTemplateDeclarations: Yes
