@@ -25,9 +25,7 @@ struct alignas(sizeof(T)) Vec_t {
 	constexpr Vec_t(Args... args) : data{static_cast<T>(args)...} {
 		static_assert(N > 1, "Vectors can only have size >= 2");
 	}
-	Vec_t &operator=(T t){
-		return *this = Vec_t(t);
-	}
+	Vec_t &operator=(T t) { return *this = Vec_t(t); }
 	constexpr T operator[](Uint i) const { return data[i]; }
 	constexpr T &operator[](Uint i) { return data[i]; }
 
@@ -37,17 +35,17 @@ struct alignas(sizeof(T)) Vec_t {
 	constexpr static Uint size = N;
 	constexpr static Uint bytes = N * sizeof(T);
 
-	void print()const{
+	void print() const {
 		std::cout << '(';
 		for (Uint i = 0; i < N - 1; i++) {
 			std::cout << data[i] << '|';
 		}
-		std::cout << data[N -1] << ")\n";
+		std::cout << data[N - 1] << ")\n";
 	}
 
 	Vec_t<T, N + 1> append(Float t = 0) const {
 		Vec_t<T, N + 1> res;
-		for(Uint i = 0; i < N; i++) {
+		for (Uint i = 0; i < N; i++) {
 			res[i] = data[i];
 		}
 		res[N] = t;
@@ -55,7 +53,7 @@ struct alignas(sizeof(T)) Vec_t {
 	}
 	Vec_t<T, N - 1> shrink() const {
 		Vec_t<T, N - 1> res;
-		for(Uint i = 0; i < N - 1; i++) {
+		for (Uint i = 0; i < N - 1; i++) {
 			res[i] = data[i];
 		}
 		return res;
@@ -115,17 +113,39 @@ struct alignas(sizeof(T)) Vec_t {
 		return res;
 	}
 	T len() const { return std::sqrt(len2()); }
-	T norm() const{
-		return 1.f / std::sqrt(len2());
+	T norm() const { return 1.f / std::sqrt(len2()); }
+	inline T &x() {
+		static_assert(N > 0, "Out of bounds !");
+		return data[0];
 	}
-	inline T& x(){static_assert(N > 0, "Out of bounds !");return data[0];}
-	inline T& y(){static_assert(N > 1, "Out of bounds !");return data[1];}
-	inline T& z(){static_assert(N > 2, "Out of bounds !");return data[2];}
-	inline T& w(){static_assert(N > 3, "Out of bounds !");return data[3];}
-	inline T x()const{static_assert(N > 0, "Out of bounds !");return data[0];}
-	inline T y()const{static_assert(N > 1, "Out of bounds !");return data[1];}
-	inline T z()const{static_assert(N > 2, "Out of bounds !");return data[2];}
-	inline T w()const{static_assert(N > 3, "Out of bounds !");return data[3];}
+	inline T &y() {
+		static_assert(N > 1, "Out of bounds !");
+		return data[1];
+	}
+	inline T &z() {
+		static_assert(N > 2, "Out of bounds !");
+		return data[2];
+	}
+	inline T &w() {
+		static_assert(N > 3, "Out of bounds !");
+		return data[3];
+	}
+	inline T x() const {
+		static_assert(N > 0, "Out of bounds !");
+		return data[0];
+	}
+	inline T y() const {
+		static_assert(N > 1, "Out of bounds !");
+		return data[1];
+	}
+	inline T z() const {
+		static_assert(N > 2, "Out of bounds !");
+		return data[2];
+	}
+	inline T w() const {
+		static_assert(N > 3, "Out of bounds !");
+		return data[3];
+	}
 	T data[N] = {};
 };
 
@@ -134,7 +154,6 @@ using Vec3f = Vec_t<Float, 3>;
 using Vec4f = Vec_t<Float, 4>;
 using Vec2u = Vec_t<Float, 2>;
 using Vec3u = Vec_t<Uint, 3>;
-
 
 template <class T, class OP, Uint N>
 inline auto un_op(Vec_t<T, N> a, const OP &op) {
@@ -196,19 +215,19 @@ inline auto operator/(const T &a, const Vec_t<U, N> &b) {
 }
 // Vec X Scalar ops
 template <class T, class U, Uint N>
-inline auto operator+(const Vec_t<T, N> &a, const U&b) {
+inline auto operator+(const Vec_t<T, N> &a, const U &b) {
 	return bin_op(a, Vec_t<U, N>(b), [](T a, T b) { return a + b; });
 }
 template <class T, class U, Uint N>
-inline auto operator-(const Vec_t<T, N> &a, const U&b) {
+inline auto operator-(const Vec_t<T, N> &a, const U &b) {
 	return bin_op(a, Vec_t<U, N>(b), [](T a, T b) { return a - b; });
 }
 template <class T, class U, Uint N>
-inline auto operator*(const Vec_t<T, N> &a, const U&b) {
+inline auto operator*(const Vec_t<T, N> &a, const U &b) {
 	return bin_op(a, Vec_t<U, N>(b), [](T a, T b) { return a * b; });
 }
 template <class T, class U, Uint N>
-inline auto operator/(const Vec_t<T, N> &a, const U&b) {
+inline auto operator/(const Vec_t<T, N> &a, const U &b) {
 	return bin_op(a, Vec_t<U, N>(b), [](T a, T b) { return a / b; });
 }
 // Unary ops
@@ -265,8 +284,18 @@ inline Vec3f cross(const Vec3f &a, const Vec3f &b) {
 	return Vec3f(a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]);
 }
 
-template<typename T>
-inline T lerp(const T &a, const T &b, const T& t) {
+template <typename T>
+inline T lerp(const T &a, const T &b, const T &t) {
 	return a * (T(1) - t) + b * t;
 }
 
+inline Vec3f vec8bit(Vec3f col) {
+	col = sqrt(col);   // gamma correction to sRGB
+	col = clip(col);   // clamp 0 - 1
+	col = col * 255.f; // multiply by 8bit max value
+	return col;
+}
+inline uint32_t vec2bgr(const Vec3f &col) {
+	auto res = vec8bit(col);
+	return pack_bgr(res.x(), res.y(), res.z());
+}
