@@ -15,14 +15,8 @@ class AccelBvh : public Accel {
 	};
 
   public:
-	AccelBvh(const Scene &scene) : Accel(scene, Accel_t::None) {
-		Uint size = m_scene.poly_cnt();
-		// This array is actually going to get modified
-		// As opposed to the original vertices/indices
-        m_poly_idx.reserve(size);
-        for(Uint i = 0; i < size; i++){
-            m_poly_idx.emplace_back(i);
-        }
+	AccelBvh(const Scene &scene) : Accel(scene, Accel_t::BVH) {
+
 	}
 	~AccelBvh() override {}
 	bool intersect(const Ray &r, HitInfo &rec) const override {
@@ -49,5 +43,4 @@ class AccelBvh : public Accel {
 	void build() override { m_built = true; }
 	// This points to the actual indices of triangles
 	// Need to use m_scene
-    std::vector<Uint> m_poly_idx;
 };

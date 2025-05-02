@@ -56,19 +56,6 @@ struct Scene {
         return AABB(pmin, pmax);
     }
 
-    AABB bbox_in(const std::vector<Uint> &poly_idx)const{
-        Vec3f pmin(InfF);
-        Vec3f pmax(-InfF);
-        for(auto i : poly_idx){
-            auto V = get_vert(i);
-            for(Uint i = 0; i < 3; i++){
-                pmin = min(pmin, V.data[i]);
-                pmax = max(pmax, V.data[i]);
-            }
-        }
-        return AABB(pmin, pmax);
-    }
-
     void update_bbox(){
         m_bbox = bbox_in(0, poly_cnt());
     }

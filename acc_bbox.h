@@ -4,7 +4,7 @@
 // Per mesh bbox test
 class AccelBbox : public Accel {
   public:
-	AccelBbox(const Scene &scene) : Accel(scene, Accel_t::None) {}
+	AccelBbox(const Scene &scene) : Accel(scene, Accel_t::Bbox) {}
 	~AccelBbox() override {}
 	bool intersect(const Ray &r, HitInfo &rec) const override {
 		bool hit = false;
