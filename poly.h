@@ -1,8 +1,9 @@
 #pragma once
 #include "ray.h"
 #include "vec.h"
-struct AABB{
-
+#include "aabb.h"
+struct Poly{
+    Poly(Vec3f a, Vec3f b, Vec3f c) : q(a), u(b - a), v(c - a) {}
     bool intersect(const Ray& r, HitInfo& rec){
 
     }
@@ -13,6 +14,10 @@ struct AABB{
     Vec3f center()const{
 
     }
-    Vec3f pmin;
-    Vec3f pmax;
+
+    AABB bbox()const{
+        
+    }
+
+    Vec3f q,u,v;
 };

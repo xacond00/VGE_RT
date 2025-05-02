@@ -14,7 +14,7 @@ struct Ray{
 
 struct HitInfo{
     Vec3f P, N;
-    float t;
-    bool face;
-    bool valid;
+    Uint idx = -1;
+    uint face = - 1;
+    float t = InfF;
 };

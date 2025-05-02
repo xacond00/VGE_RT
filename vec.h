@@ -86,3 +86,4 @@ inline auto log(const Vec_t<T, N>& a) {
 using Vec2f = Vec_t<Float, 2>;
 using Vec3f = Vec_t<Float, 3>;
 using Vec4f = Vec_t<Float, 4>;
+using Vec3u = Vec_t<Uint, 3>;
