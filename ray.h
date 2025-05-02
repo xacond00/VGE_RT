@@ -14,8 +14,17 @@ struct Ray{
 };
 
 struct HitInfo{
+    HitInfo(){}
+    HitInfo(Float t, Float u, Float v, Uint idx, bool face) : tuv(t, u, v), idx(idx), face(face) {}
+    Float t()const{return tuv[0];}
+    Float u()const{return tuv[1];}
+    Float v()const{return tuv[2];}
+    Vec3f tuv;
+    Uint idx;
+    bool face;
+};
+
+struct SurfaceInfo : public HitInfo{
+    SurfaceInfo(const HitInfo& hit) : HitInfo(hit){}
     Vec3f P, N;
-    Uint idx = -1;
-    uint face = - 1;
-    float t = InfF;
 };

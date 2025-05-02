@@ -5,6 +5,9 @@
 #include "film.h"
 
 struct Camera{
+    Ray sample_ray(Vec2u xy)const{
 
+    }
     Film film;
+    
 };

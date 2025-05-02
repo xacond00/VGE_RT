@@ -4,36 +4,49 @@
 #include "vec.h"
 struct AABB{
     AABB() : pmin(InfF), pmax(-InfF){}
+    AABB(Vec3f pmin, Vec3f pmax): pmin{pmin},pmax(pmax){}
 
-    // Returns if hit was valid and intersection distance in t
-    bool intersect(const Ray& r, Float &t)const{
-        auto [mint, maxt] = bounds_check(r);
-        if (mint < maxt && maxt > 0 && mint < t) {
-			t = mint;
-			return true;
-		}
-		return false;
+    template<size_t N>
+    AABB(const std::array<Vec3f, N>& pts) : AABB(){
+        for(const auto &pt : pts){
+            pmin = min(pmin, pt);
+            pmax = max(pmax, pt);
+        }
     }
 
     // Returns that ray intersects
-    bool ray_test(const Ray& r)const{
+    bool ray_test(const Ray& r, Float t = InfF)const{
         auto [mint, maxt] = bounds_check(r);
-		return mint < maxt && maxt > 0;
+		return mint < maxt && maxt > 0 && mint < t;
     }
+
+    bool intersect(const Ray &r, HitInfo &hit) {
+		auto [mint, maxt] = bounds_check(r);
+        if (mint < maxt && maxt > 0 && mint < hit.t()) {
+			hit.tuv[0] = mint;
+			return true;
+		}
+		return false;
+	}
+
     // Checks if edge was hit (for debugging)
     bool hit_edge(const Ray& r)const{
         auto [mint, maxt] = bounds_check(r);
         return mint < maxt && maxt > 0 && (maxt - mint) < EpsF;
     }
-
-    void expand(const Vec3f& v){
+    AABB padded(Float amount = EpsF)const{
+        return {pmin - amount, pmax + amount};
+    }
+    AABB &expand(const Vec3f& v){
         pmin = min(pmin, v);
         pmax = max(pmax, v);
+        return *this;
     }
 
-    void join(const AABB& other){
+    AABB &join(const AABB& other){
         pmin = min(pmin, other.pmin);
         pmax = max(pmax, other.pmax);
+        return *this;
     }
 
     Vec3f center()const{
