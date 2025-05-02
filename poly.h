@@ -1,9 +1,10 @@
 #pragma once
+// Created by Ondrej Ac (xacond00)
 #include "ray.h"
 #include "vec.h"
 #include "aabb.h"
 struct Poly{
-    Poly(Vec3f a, Vec3f b, Vec3f c) : q(a), u(b - a), v(c - a) {}
+    Poly(Vec3f a, Vec3f b, Vec3f c) : Q(a), U(b - a), V(c - a), N(cross(U,V)) {}
     bool intersect(const Ray& r, HitInfo& rec){
 
     }
@@ -19,5 +20,5 @@ struct Poly{
         
     }
 
-    Vec3f q,u,v;
+    Vec3f Q,U,V, N;
 };

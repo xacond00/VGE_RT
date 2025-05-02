@@ -1,4 +1,5 @@
 #pragma once
+// Created by Ondrej Ac (xacond00)
 #include "aabb.h"
 #include "ray.h"
 #include "scene.h"

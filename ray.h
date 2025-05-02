@@ -1,4 +1,5 @@
 #pragma once
+// Created by Ondrej Ac (xacond00)
 #include "vec.h"
 
 struct Ray{
