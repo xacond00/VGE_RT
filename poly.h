@@ -3,9 +3,15 @@
 #include "aabb.h"
 #include "ray.h"
 #include "vec.h"
+
+struct Vert3{
+    Vec3f data[3];
+};
+
 struct Poly {
 	// 3 points and index
 	Poly(Vec3f a, Vec3f b, Vec3f c, Uint idx = -1) : Q(a), U(b - a), V(c - a), N(cross(U, V)), idx(idx) {}
+	Poly(const Vert3& v, Uint idx = -1) : Poly(v.data[0], v.data[1], v.data[2], idx){}
 
 	bool intersect(const Ray &r, HitInfo &rec) {
 		auto si = bounds_check(r);
@@ -50,8 +56,4 @@ struct Poly {
 		float t = dot(V, qV) * iD;
 		return HitInfo(t, u, v, idx, D > 0);
 	}
-};
-
-struct Vert3{
-    Vec3f data[3];
 };
