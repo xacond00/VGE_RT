@@ -19,8 +19,8 @@ struct HitInfo{
     Float t()const{return tuv[0];}
     Float u()const{return tuv[1];}
     Float v()const{return tuv[2];}
-    Vec3f tuv;
-    Uint idx;
+    Vec3f tuv = Vec3f(InfF, 0, 0);
+    Uint idx = -1;
     bool face;
 };
 

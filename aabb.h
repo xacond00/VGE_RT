@@ -20,10 +20,10 @@ struct AABB{
 		return mint < maxt && maxt > 0 && mint < t;
     }
 
-    bool intersect(const Ray &r, HitInfo &hit) {
+    bool intersect(const Ray &r, HitInfo &rec) {
 		auto [mint, maxt] = bounds_check(r);
-        if (mint < maxt && maxt > 0 && mint < hit.t()) {
-			hit.tuv[0] = mint;
+        if (mint < maxt && maxt > 0 && mint < rec.t()) {
+			rec.tuv[0] = mint;
 			return true;
 		}
 		return false;

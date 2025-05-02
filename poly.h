@@ -5,12 +5,12 @@
 #include "vec.h"
 struct Poly {
 	// 3 points and index
-	Poly(Vec3f a, Vec3f b, Vec3f c, Uint idx = -1) : Q(a), U(b - a), V(c - a), N(cross(U, V)) {}
+	Poly(Vec3f a, Vec3f b, Vec3f c, Uint idx = -1) : Q(a), U(b - a), V(c - a), N(cross(U, V)), idx(idx) {}
 
-	bool intersect(const Ray &r, HitInfo &hit) {
+	bool intersect(const Ray &r, HitInfo &rec) {
 		auto si = bounds_check(r);
-		if (within(si.u(), 0.f, 1.f) && within(si.v(), 0.f, 1.f - si.u()) && inside(si.t(), Eps6F, hit.t())) {
-			hit = si;
+		if (within(si.u(), 0.f, 1.f) && within(si.v(), 0.f, 1.f - si.u()) && inside(si.t(), Eps6F, rec.t())) {
+			rec = si;
 			return true;
 		}
 		return false;
@@ -21,8 +21,8 @@ struct Poly {
 		return within(si.u(), 0.f, 1.f) && within(si.v(), 0.f, 1.f - si.u()) && inside(si.t(), Eps6F, t);
     }
 
-	SurfaceInfo surface_info(const HitInfo &hit) const {
-		SurfaceInfo si(hit);
+	SurfaceInfo surface_info(const HitInfo &rec) const {
+		SurfaceInfo si(rec);
 		si.N = si.face ? N : -N;
 		si.P = Q + si.u() * U + si.v() * V;
         return si;
@@ -50,4 +50,8 @@ struct Poly {
 		float t = dot(V, qV) * iD;
 		return HitInfo(t, u, v, idx, D > 0);
 	}
+};
+
+struct Vert3{
+    Vec3f data[3];
 };

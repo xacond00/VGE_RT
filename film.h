@@ -4,7 +4,11 @@
 #include "vec.h"
 struct Film{
     Film(Uint w, Uint h) : m_data(w*h), m_dims(w,h){}
-
+    void reset(){
+        for(auto &val : m_data){
+            val = Vec4f(0);
+        }
+    }
     Vec3f read(Vec2u xy)const{
         auto val = at(xy);
         return val.shrink() / val[3];

@@ -118,6 +118,14 @@ struct alignas(sizeof(T)) Vec_t {
 	T norm() const{
 		return 1.f / std::sqrt(len2());
 	}
+	inline T& x(){static_assert(N > 0, "Out of bounds !");return data[0];}
+	inline T& y(){static_assert(N > 1, "Out of bounds !");return data[1];}
+	inline T& z(){static_assert(N > 2, "Out of bounds !");return data[2];}
+	inline T& w(){static_assert(N > 3, "Out of bounds !");return data[3];}
+	inline T x()const{static_assert(N > 0, "Out of bounds !");return data[0];}
+	inline T y()const{static_assert(N > 1, "Out of bounds !");return data[1];}
+	inline T z()const{static_assert(N > 2, "Out of bounds !");return data[2];}
+	inline T w()const{static_assert(N > 3, "Out of bounds !");return data[3];}
 	T data[N] = {};
 };
 
@@ -211,6 +219,18 @@ inline auto operator-(const Vec_t<T, N> &a) {
 template <class T, Uint N>
 inline auto sqrt(const Vec_t<T, N> &a) {
 	return un_op(a, [](T a) { return std::sqrt(a); });
+}
+template <class T, Uint N>
+inline auto sin(const Vec_t<T, N> &a) {
+	return un_op(a, [](T a) { return std::sin(a); });
+}
+template <class T, Uint N>
+inline auto cos(const Vec_t<T, N> &a) {
+	return un_op(a, [](T a) { return std::cos(a); });
+}
+template <class T, Uint N>
+inline auto atan(const Vec_t<T, N> &a) {
+	return un_op(a, [](T a) { return std::atan(a); });
 }
 template <class T, Uint N>
 inline auto rcp(const Vec_t<T, N> &a) {
