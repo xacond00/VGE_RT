@@ -1,5 +1,6 @@
 #pragma once
 // Created by Ondrej Ac (xacond00)
+#define SDL_MAIN_HANDLED
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <functional>

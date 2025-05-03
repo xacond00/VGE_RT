@@ -6,6 +6,12 @@
 
 enum Accel_t { None, Bbox, BVH, Octree, Blast };
 
+/*
+struct PolyPtr{
+	Uint prim_idx;
+	Uint mesh_idx;
+};*/
+
 // Acceleration structure base interface
 class Accel {
   public:
@@ -27,11 +33,14 @@ class Accel {
 	virtual void build();
 
 	// Scene getters
-	//SurfaceInfo surface_info(Uint i, const HitInfo &rec) const { return m_scene.surface_info(i, rec); }
+	// SurfaceInfo surface_info(Uint i, const HitInfo &rec) const { return m_scene.surface_info(i, rec); }
 	Vert3 vert(Uint i) const { return m_scene.get_vert(i); }
 	Poly poly(Uint i) const { return m_scene.get_poly(i); }
 	Vec3f cent(Uint i) const { return m_scene.get_center(i); }
 
+	Uint poly_cnt() const { return indices().size(); }
+	std::vector<Uint> &indices() { return m_poly_idx; }
+	const std::vector<Uint> &indices() const { return m_poly_idx; }
 	// Compute bbox from the range of stored indices
 	AABB bbox_in(Uint beg, Uint end) const { return bbox_in(Vec2u{beg, end}); }
 

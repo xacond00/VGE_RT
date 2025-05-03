@@ -6,6 +6,13 @@ struct AABB{
     AABB() : pmin(InfF), pmax(-InfF){}
     AABB(Vec3f pmin, Vec3f pmax): pmin{pmin},pmax(pmax){}
 
+    AABB(const Vec3f* pts, Uint N) : AABB(){
+        for(Uint i = 0; i < N; i++){
+            pmin = min(pmin, pts[i]);
+            pmax = max(pmax, pts[i]);
+        }
+    }
+
     template<size_t N>
     AABB(const std::array<Vec3f, N>& pts) : AABB(){
         for(const auto &pt : pts){
@@ -28,6 +35,13 @@ struct AABB{
 		}
 		return false;
 	}
+
+    Uint longest_axis()const{
+        Vec3f d = pmax - pmin;
+        Uint axis = 0;
+        axis = d[1] > d[0];
+        return d[2] > d[axis] ? 2 : axis; 
+    }
 
     // Checks if edge was hit (for debugging)
     bool hit_edge(const Ray& r)const{

@@ -5,7 +5,13 @@
 #include "vec.h"
 
 struct Vert3{
+	Vert3(){}
+	Vert3(const Vec3f& A, const Vec3f& B, const Vec3f& C) : data{A,B,C}{}
     Vec3f data[3];
+	AABB bbox() const {
+		auto box = AABB(data, 3);
+		return box.padded();
+	}
 };
 
 struct Poly {
@@ -36,8 +42,8 @@ struct Poly {
 	Vec3f center() const { return Q + (U + V) * Float(1.0 / 3.0); }
 	Float area() { return Float(0.5f) * N.len(); }
 	AABB bbox() const {
-		std::array<Vec3f, 3u> pts{Q, Q + U, Q + V};
-		AABB box(pts);
+		Vec3f pts[] = {Q, Q + U, Q + V};
+		AABB box(pts, 3);
 		return box.padded();
 	}
 	// Origin, Vec U, Vec V, Surf Normal

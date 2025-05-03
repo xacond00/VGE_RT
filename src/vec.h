@@ -87,14 +87,14 @@ struct alignas(sizeof(T)) Vec_t {
 	T max() const {
 		T res = data[0];
 		for (Uint i = 1; i < N; i++) {
-			res = max(res, data[i]);
+			res = std::max(res, data[i]);
 		}
 		return res;
 	}
 	T min() const {
 		T res = data[0];
 		for (Uint i = 1; i < N; i++) {
-			res = min(res, data[i]);
+			res = std::min(res, data[i]);
 		}
 		return res;
 	}
