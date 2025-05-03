@@ -319,44 +319,16 @@ inline Vec_t<T, N> mod(const Vec_t<T, N> &u, const Vec_t<T, N> &v) { return u - 
 
 inline Vec2f fcossin(Float x) {
 	Vec2f t(x, x - PihF);
-	t = mod(t, Vec2f(Pi2F));
-	t = abs(t - PiF) - PihF;
-	Vec2f y = fast_sin(t);
-	return y;
+	t = PihF - fabs(t - Pi2F * floor(t * Float(1.0 / Pi2F) + Float(0.5)));
+	t = fast_sin(t);
+	return t;
 }
 
 inline Vec2f fsincos(Float x) {
 	Vec2f t(x, x - PihF);
-	t = mod(t, Vec2f(Pi2F));
-	t = abs(t - PiF) - PihF;
-	Vec2f y = fast_sin(t);
-	return Vec2f(y.y(), y.x());
-}
-
-inline Vec3f to_hemisphere(const Vec3f& v_local, const Vec3f& n) {
-    // Frisvad's method
-    if (n.z() < Float(-0.999999)) {
-        // Degenerate case: normal points almost directly down
-        return Vec3f(-v_local.x(), -v_local.y(), -v_local.z());
-    }
-
-    Float a = Float(1) / (Float(1) + n.z());
-    Float b = -n.x() * n.y() * a;
-
-    Vec3f x = Vec3f(Float(1) - n.x() * n.x() * a, b, -n.x());
-    Vec3f y = Vec3f(b, Float(1) - n.y() * n.y() * a, -n.y());
-
-    return v_local.x() * x + v_local.y() * y + v_local.z() * n;
-}
-
-
-inline Vec3f sample_cos_distribution() {
-	Float r0 = randfl();
-	Float r1 = randfl();
-	const Float phi = Pi2F * r0;
-	Vec2f r_fact = sqrt(Vec2f(r1, Float(1) - r1));
-	Vec2f d = r_fact[0] * fcossin(phi);
-	return d.append(r_fact[1]);
+	t = PihF - fabs(t - Pi2F * floor(t * Float(1.0 / Pi2F) + Float(0.5)));
+	t = fast_sin(t);
+	return Vec2f(t.y(), t.x());
 }
 
 template <class T, Uint N>

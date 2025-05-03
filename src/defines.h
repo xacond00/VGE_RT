@@ -30,19 +30,6 @@ inline double timer(double t1) {
 inline static constexpr Float todeg(Float a) { return a * Float(180.0 / PiF); }
 inline static constexpr Float torad(Float a) { return a * Float(PiF / 180.0f); }
 
-inline uint32_t xorshift32() {
-	thread_local static uint32_t x = 0x6f9f;
-	x ^= x << 13;
-	x ^= x >> 17;
-	x ^= x << 5;
-	return x;
-}
-
-inline Float randfl() {
-	uint32_t x = 0x3f800000 | (xorshift32() & 0x007FFFFF);
-	return *(float *)&x - 1.f;
-}
-
 inline uint32_t pack_rgb(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) {
 	return r + (g << 8) + (b << 16) + (a << 24);
 }

@@ -21,7 +21,9 @@ class AccelBvh : public Accel {
 	};
 
   public:
-	AccelBvh(const Scene &scene, Uint node_size = 4) : Accel(scene, Accel_t::BVH), m_node_size(node_size) {}
+	AccelBvh(const Scene &scene, Uint node_size = 4) : Accel(scene, Accel_t::BVH), m_node_size(node_size) {
+		build();
+	}
 
 	void bvh_builder() {}
 

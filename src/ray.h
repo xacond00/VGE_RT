@@ -5,7 +5,7 @@
 struct Ray{
     Ray(){}
     Ray(Vec3f O, Vec3f D) : O(O), D(D), iD(rcp(D)){}
-    Ray(Vec3f O, Vec3f D, bool no_inv) : O(O), D(D){}
+    Ray(Vec3f O, Vec3f _D, bool norm) : O(O), D(_D), iD(rcp(D)){}
     Vec3f at(Float t){
         return O + Vec3f(t) * D;
     }
@@ -23,9 +23,4 @@ struct HitInfo{
     Vec3f tuv = Vec3f(InfF, 0, 0);
     Uint idx = -1;
     bool face;
-};
-
-struct SurfaceInfo : public HitInfo{
-    SurfaceInfo(const HitInfo& hit) : HitInfo(hit){}
-    Vec3f P, N;
 };

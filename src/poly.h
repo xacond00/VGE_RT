@@ -3,6 +3,7 @@
 #include "aabb.h"
 #include "ray.h"
 #include "vec.h"
+#include "transform.h"
 
 struct Vert3{
 	Vert3(){}
@@ -36,8 +37,9 @@ struct Poly {
 
 	SurfaceInfo surface_info(const HitInfo &rec) const {
 		SurfaceInfo si(rec);
-		si.N = si.face ? N : -N;
+		si.N = norm(si.face ? N : -N);
 		si.P = Q + si.u() * U + si.v() * V;
+		si.frame = ONB(si.N);
         return si;
 	}
 	Vec3f center() const { return Q + (U + V) * Float(1.0 / 3.0); }

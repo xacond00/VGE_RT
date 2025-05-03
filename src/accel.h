@@ -4,7 +4,6 @@
 #include "ray.h"
 #include "scene.h"
 
-enum Accel_t { None, Bbox, BVH, Octree, Blast };
 
 /*
 struct PolyPtr{
@@ -12,9 +11,13 @@ struct PolyPtr{
 	Uint mesh_idx;
 };*/
 
+enum class Accel_t { None, Bbox, BVH, Octree, Other, LAST };
+
+
 // Acceleration structure base interface
 class Accel {
   public:
+
 	Accel(const Scene &scene, Accel_t type) : m_scene(scene), m_type(type), m_built(false) {
 		if (m_type <= Accel_t::Bbox)
 			return;
@@ -62,5 +65,5 @@ class Accel {
 	const Scene &m_scene;
 	std::vector<Uint> m_poly;
 	const Accel_t m_type;
-	bool m_built;
+	bool m_built = false;
 };

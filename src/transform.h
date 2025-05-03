@@ -1,6 +1,7 @@
 #pragma once
 // Created by Ondrej Ac (xacond00)
 #include "ray.h"
+
 // Custom transform (hybrid between matrix and normal storage)
 struct Transform{
     Transform(){}
@@ -61,6 +62,52 @@ struct Transform{
     Float S = Float(0);
 };
 
-struct ONB{
 
-};
+
+struct ONB {
+    public:
+        ONB() {}
+        ONB(const Vec3f& n) { build(n); }
+        //inline Vec3f operator[](int i) const { return uvw[i]; }
+        //inline Vec3f& operator[](int i) { return uvw[i]; }
+    
+
+        inline Vec3f local(const Vec3f& a)const {
+            Vec3f ua = u * a;
+            Vec3f va = v * a;
+            Vec3f wa = w * a;
+            Vec3f x(ua.x(), va.x(), wa.x());
+            Vec3f y(ua.y(), va.y(), wa.y());
+            Vec3f z(ua.z(), va.z(), wa.z());
+            return x + y + z;//Vec3f(dot(a, u), dot(a, v), dot(a, w));
+        }
+        inline Vec3f world(const Vec3f& a) const {
+            return a.x() * u + a.y() * v + a.z() * w;
+        }
+        /*
+        branchlessONB
+        https://graphics.pixar.com/library/OrthonormalB/paper.pdf
+        */
+        inline void build(const Vec3f& n) {
+            Float sign = std::copysign(Float(1), n.z());
+            Float a = 1.f / (sign + n.z());
+            Vec3f s = Vec3f(a, a, 1.f);
+            Vec3f xy = Vec3f(n.x(), n.y(), 1.f);
+            Vec3f sxy = s * xy;
+            u = Vec3f(1, 0, 0) - sign * n.x() * sxy;
+            v = Vec3f(0, sign, 0) - n.y() * sxy;
+            w = n;
+        }
+        void print() {
+            u.print();
+            v.print();
+            w.print();
+        }
+        Vec3f u, v, w;
+    };
+    
+    struct SurfaceInfo : public HitInfo{
+        SurfaceInfo(const HitInfo& hit) : HitInfo(hit){}
+        Vec3f P, N;
+        ONB frame;
+    };

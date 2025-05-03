@@ -12,7 +12,10 @@
 struct Scene {
     // Intersection
     /////
-
+	Scene(){}
+	Scene(const std::string& filename, float scale = 1.0){
+		load_obj(filename, scale);
+	}
 	// Intersect i-th polygon from array
 	inline bool intersect(Uint i, const Ray &r, HitInfo &rec) const { return get_poly(i).intersect(r, rec); }
 	// Ray-test i-th polygon from array
@@ -69,13 +72,22 @@ struct Scene {
 	void update_bbox() { m_bbox = bbox_in(0, poly_cnt()); }
     // Update bbox of i-th mesh
 	void update_bbox(Uint i) { m_mesh[i].m_bbox = bbox_in(m_mesh[i].range()); }
-
+	void reset(){
+		m_filename.clear();
+		m_vert.clear();
+		m_poly.clear();
+		m_mesh.clear();
+		m_bbox = AABB();
+	}
     // Load obj file
-	bool load_obj(const std::string &filename) {
+	bool load_obj(const std::string &filename, float scale = 1.0) {
 		std::ifstream file(filename);
-		if (!file)
+		if (!file){
+			println("Couln't load obj:", filename, "!");
 			return false;
-
+		}
+		reset();
+		m_filename = filename;
 		auto trim = [](const std::string &s) -> std::string {
 			size_t start = s.find_first_not_of(" \t\r\n");
 			size_t end = s.find_last_not_of(" \t\r\n");
@@ -102,6 +114,7 @@ struct Scene {
 			if (prefix == "v") {
 				Vec3f v;
 				ss >> v[0] >> v[1] >> v[2];
+				v = v * scale;
 				m_vert.push_back(v);
 				m_bbox.expand(v);
 			} else if (prefix == "f") {
@@ -138,7 +151,7 @@ struct Scene {
 
 		return true;
 	}
-
+	std::string m_filename;
 	std::vector<Vec3f> m_vert; // Raw vertices
 	std::vector<Vec3u> m_poly; // Triangle indices
 	std::vector<Mesh> m_mesh; // Meshes

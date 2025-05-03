@@ -7,6 +7,9 @@
 // Main code
 int main(int, char **) {
 	Program prog;
+	prog.run();
+	
+	/*
 	Scene scene;
 	scene.load_obj("../sponza.obj");
 	auto bvh = AccelBvh(scene);
@@ -22,6 +25,5 @@ int main(int, char **) {
 		if(hi.idx != Uint(-1))
 		idx += hi.idx;
 	}
-	println(res, idx, timer(t));
-	//prog.run();
+	println(res, idx, timer(t));*/
 }

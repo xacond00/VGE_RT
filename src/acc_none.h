@@ -4,7 +4,8 @@
 // Zero acceleration except for scene bbox test
 class AccelNone : public Accel {
   public:
-	AccelNone(const Scene &scene) : Accel(scene, Accel_t::None) {}
+	AccelNone(const Scene &scene) : Accel(scene, Accel_t::None) {
+	}
 	//virtual ~AccelNone() {}
 	bool intersect(const Ray &r, HitInfo &rec) const override {
 		bool hit = false;
