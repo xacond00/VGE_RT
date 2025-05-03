@@ -8,8 +8,8 @@ struct Transform{
         update_Tr();
     }
     void update_Tr(){
-		Vec3f sin_A = sin(A);
-		Vec3f cos_A = cos(A);
+		Vec3f sin_A = fsin(A);
+		Vec3f cos_A = fcos(A);
 		Tr[0][0] = cos_A.x() * cos_A.y();
 		Tr[0][1] = cos_A.x() * sin_A.y() * sin_A.z() - sin_A.x() * cos_A.z();
 		Tr[0][2] = cos_A.x() * sin_A.y() * cos_A.z() + sin_A.x() * sin_A.z();

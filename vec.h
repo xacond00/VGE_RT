@@ -240,6 +240,10 @@ inline auto sqrt(const Vec_t<T, N> &a) {
 	return un_op(a, [](T a) { return std::sqrt(a); });
 }
 template <class T, Uint N>
+inline auto floor(const Vec_t<T, N> &a) {
+	return un_op(a, [](T a) { return std::floor(a); });
+}
+template <class T, Uint N>
 inline auto sin(const Vec_t<T, N> &a) {
 	return un_op(a, [](T a) { return std::sin(a); });
 }
@@ -261,6 +265,10 @@ inline auto log(const Vec_t<T, N> &a) {
 }
 template <class T, Uint N>
 inline auto abs(const Vec_t<T, N> &a) {
+	return un_op(a, [](T a) { return std::abs(a); });
+}
+template <class T, Uint N>
+inline auto fabs(const Vec_t<T, N> &a) {
 	return un_op(a, [](T a) { return std::abs(a); });
 }
 template <class T, Uint N>
@@ -298,4 +306,70 @@ inline Vec3f vec8bit(Vec3f col) {
 inline uint32_t vec2bgr(const Vec3f &col) {
 	auto res = vec8bit(col);
 	return pack_bgr(res.x(), res.y(), res.z());
+}
+
+template <class T, Uint N>
+inline Vec_t<T, N> fast_sin(const Vec_t<T, N>& x) {
+	return un_op(x, [](T a) { return fast_sin(a); });
+}
+template <class T, Uint N>
+inline Vec_t<T, N> fract(const Vec_t<T, N> &x) { return x - floor(x); }
+template <class T, Uint N>
+inline Vec_t<T, N> mod(const Vec_t<T, N> &u, const Vec_t<T, N> &v) { return u - v * floor(u / v); }
+
+inline Vec2f fcossin(Float x) {
+	Vec2f t(x, x - PihF);
+	t = mod(t, Vec2f(Pi2F));
+	t = abs(t - PiF) - PihF;
+	Vec2f y = fast_sin(t);
+	return y;
+}
+
+inline Vec2f fsincos(Float x) {
+	Vec2f t(x, x - PihF);
+	t = mod(t, Vec2f(Pi2F));
+	t = abs(t - PiF) - PihF;
+	Vec2f y = fast_sin(t);
+	return Vec2f(y.y(), y.x());
+}
+
+inline Vec3f to_hemisphere(const Vec3f& v_local, const Vec3f& n) {
+    // Frisvad's method
+    if (n.z() < Float(-0.999999)) {
+        // Degenerate case: normal points almost directly down
+        return Vec3f(-v_local.x(), -v_local.y(), -v_local.z());
+    }
+
+    Float a = Float(1) / (Float(1) + n.z());
+    Float b = -n.x() * n.y() * a;
+
+    Vec3f x = Vec3f(Float(1) - n.x() * n.x() * a, b, -n.x());
+    Vec3f y = Vec3f(b, Float(1) - n.y() * n.y() * a, -n.y());
+
+    return v_local.x() * x + v_local.y() * y + v_local.z() * n;
+}
+
+
+inline Vec3f sample_cos_distribution() {
+	Float r0 = randfl();
+	Float r1 = randfl();
+	const Float phi = Pi2F * r0;
+	Vec2f r_fact = sqrt(Vec2f(r1, Float(1) - r1));
+	Vec2f d = r_fact[0] * fcossin(phi);
+	return d.append(r_fact[1]);
+}
+
+template <class T, Uint N>
+inline Vec_t<T, N> fsin(Vec_t<T, N> x) {
+	using vec = Vec_t<T, N>;
+	x = mod(x - PihF, vec(Pi2F));
+	x = fabs(x - PiF) - PihF;
+	return fast_sin(x);
+}
+template <class T, Uint N>
+inline Vec_t<T, N> fcos(Vec_t<T, N> x) {
+	using vec = Vec_t<T, N>;
+	x = mod(x, vec(Pi2F));
+	x = fabs(x - PiF) - PihF;
+	return fast_sin(x);
 }

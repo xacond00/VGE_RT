@@ -22,7 +22,7 @@ class Renderer{
         else if(auto acc = dynamic_cast<AccelBvh *>(m_acc)){
             render_internal(*acc);
         }
-        else if(auto acc = dynamic_cast<Accel *>(m_acc)){
+        else if(auto acc = dynamic_cast<AccelNone *>(m_acc)){
             render_internal(*acc);
         }
         else{
@@ -32,8 +32,9 @@ class Renderer{
     // Renders the image
     template<class Acc>
     void render_internal(const Acc &acc){
-        
+
     }
+
     template<class Acc>
     Vec3f sample(const Acc &acc, Ray r)const{
         HitInfo rec;
@@ -43,16 +44,19 @@ class Renderer{
         while(depth > 0){
             bool hit = acc.intersect(r, rec);
             if(!hit){ // Sky
-                float val = std::pow(::pow(fmaxf(r.D.z(), 0), 32),32);
+                float val = std::pow(std::pow(fmaxf(r.D.z(), 0), 16),16);
                 result = result + weight * lerp(Vec3f(0.5,0.8,1.0), 5.f * Vec3f(1,1,0.2), Vec3f(val)); 
                 break;
             }
             else{
                 SurfaceInfo si = scene.surface_info(rec);
                 r.O = si.P;
-                r.D = si.N; // Replace with random reflection
+                r.D = to_hemisphere(sample_cos_distribution(), si.N);
+                //si.N; // Replace with random reflection
                 // emission would go here ... result += weight * emiss
                 weight = weight * 0.9f;
+                rec.idx = -1;
+                rec.tuv.x() = InfF;
             }
             depth--;
         }
