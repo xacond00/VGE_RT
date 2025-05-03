@@ -72,3 +72,22 @@ inline Float fcos(Float x) {
 	x = fabs(x - PiF) - PihF;
 	return fast_sin(x);
 }
+
+template <class T>
+inline void print(T t) {
+	std::cout << t << ' ';
+}
+template <class T, class ...Ts>
+inline void print(T t, Ts... ts) {
+	print(t);
+	print(ts...);
+}
+template <class T>
+inline void println(T t) {
+	std::cout << t << "\n";
+}
+template <class T, class ...Ts>
+inline void println(T t, Ts... ts) {
+	print(t);
+	println(ts...);
+}

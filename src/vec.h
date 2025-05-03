@@ -152,7 +152,7 @@ struct alignas(sizeof(T)) Vec_t {
 using Vec2f = Vec_t<Float, 2>;
 using Vec3f = Vec_t<Float, 3>;
 using Vec4f = Vec_t<Float, 4>;
-using Vec2u = Vec_t<Float, 2>;
+using Vec2u = Vec_t<Uint, 2>;
 using Vec3u = Vec_t<Uint, 3>;
 
 template <class T, class OP, Uint N>

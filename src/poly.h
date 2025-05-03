@@ -9,9 +9,10 @@ struct Vert3{
 	Vert3(const Vec3f& A, const Vec3f& B, const Vec3f& C) : data{A,B,C}{}
     Vec3f data[3];
 	AABB bbox() const {
-		auto box = AABB(data, 3);
-		return box.padded();
+		return AABB(data, 3).padded();
 	}
+	Vec3f center() const { return  (data[0] + data[1] + data[2]) * Float(1.0 / 3.0); }
+
 };
 
 struct Poly {
@@ -43,8 +44,7 @@ struct Poly {
 	Float area() { return Float(0.5f) * N.len(); }
 	AABB bbox() const {
 		Vec3f pts[] = {Q, Q + U, Q + V};
-		AABB box(pts, 3);
-		return box.padded();
+		return AABB(pts, 3).padded();
 	}
 	// Origin, Vec U, Vec V, Surf Normal
 	Vec3f Q, U, V, N;

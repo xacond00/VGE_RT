@@ -27,6 +27,15 @@ struct AABB{
 		return mint < maxt && maxt > 0 && mint < t;
     }
 
+    bool ray_dist(const Ray& r, Float &t)const{
+        auto [mint, maxt] = bounds_check(r);
+		if(mint < maxt && maxt > 0 && mint < t){
+            t = mint;
+            return true;
+        }
+        return false;
+    }
+
     bool intersect(const Ray &r, HitInfo &rec) {
 		auto [mint, maxt] = bounds_check(r);
         if (mint < maxt && maxt > 0 && mint < rec.t()) {
@@ -48,23 +57,29 @@ struct AABB{
         auto [mint, maxt] = bounds_check(r);
         return mint < maxt && maxt > 0 && (maxt - mint) < EpsF;
     }
+
+    friend AABB operator+(AABB a, const AABB& b){
+        return a.expand(b);
+    }
+
     AABB padded(Float amount = EpsF)const{
         return {pmin - amount, pmax + amount};
     }
+
     AABB &expand(const Vec3f& v){
         pmin = min(pmin, v);
         pmax = max(pmax, v);
         return *this;
     }
 
-    AABB &join(const AABB& other){
+    AABB &expand(const AABB& other){
         pmin = min(pmin, other.pmin);
         pmax = max(pmax, other.pmax);
         return *this;
     }
 
     Vec3f center()const{
-        return (pmin + pmax) * 0.5f;
+        return (pmin + pmax) * Float(0.5);
     }
 
     Float area()const{

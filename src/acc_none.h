@@ -5,7 +5,7 @@
 class AccelNone : public Accel {
   public:
 	AccelNone(const Scene &scene) : Accel(scene, Accel_t::None) {}
-	~AccelNone() override {}
+	//virtual ~AccelNone() {}
 	bool intersect(const Ray &r, HitInfo &rec) const override {
 		bool hit = false;
         // If hit scene bbox

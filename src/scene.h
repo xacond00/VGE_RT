@@ -16,7 +16,7 @@ struct Scene {
 	// Intersect i-th polygon from array
 	inline bool intersect(Uint i, const Ray &r, HitInfo &rec) const { return get_poly(i).intersect(r, rec); }
 	// Ray-test i-th polygon from array
-	inline bool ray_test(Uint i, const Ray &r, Float t) const { return get_poly(i).ray_test(r, t); }
+	inline bool ray_test(Uint i, const Ray &r, Float t = InfF) const { return get_poly(i).ray_test(r, t); }
     // Test bounding box hit
 	bool hit_bbox(const Ray &r, Float max_t = InfF) const { return m_bbox.ray_test(r, max_t); }
     // Finalize surface rec of i-th polygon from array

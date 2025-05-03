@@ -21,26 +21,22 @@ class Accel {
 		// This array is actually going to get modified
 		// As opposed to the original vertices/indices
 		Uint size = m_scene.poly_cnt();
-		m_poly_idx.reserve(size);
+		m_poly.reserve(size);
 		for (Uint i = 0; i < size; i++) {
-			m_poly_idx.emplace_back(i);
+			m_poly.emplace_back(i);
 		}
 	}
-	virtual ~Accel() {}
-	virtual bool intersect(const Ray &r, HitInfo &rec) const;
-	virtual bool ray_test(const Ray &r, Float t = InfF) const;
-	virtual void update();
-	virtual void build();
+	//virtual ~Accel() {}
+	virtual bool intersect(const Ray &r, HitInfo &rec) const{return false;} 
+	virtual bool ray_test(const Ray &r, Float t = InfF) const{return false;}
+	virtual void update(){}
+	virtual void build(){}
 
-	// Scene getters
-	// SurfaceInfo surface_info(Uint i, const HitInfo &rec) const { return m_scene.surface_info(i, rec); }
-	Vert3 vert(Uint i) const { return m_scene.get_vert(i); }
-	Poly poly(Uint i) const { return m_scene.get_poly(i); }
-	Vec3f cent(Uint i) const { return m_scene.get_center(i); }
-
-	Uint poly_cnt() const { return indices().size(); }
-	std::vector<Uint> &indices() { return m_poly_idx; }
-	const std::vector<Uint> &indices() const { return m_poly_idx; }
+	// Scene getters from poly indices
+	Vert3 vert(Uint i) const { return m_scene.get_vert(m_poly[i]); }
+	Poly poly(Uint i) const { return m_scene.get_poly(m_poly[i]); }
+	Vec3f cent(Uint i) const { return m_scene.get_center(m_poly[i]); }
+	
 	// Compute bbox from the range of stored indices
 	AABB bbox_in(Uint beg, Uint end) const { return bbox_in(Vec2u{beg, end}); }
 
@@ -64,7 +60,7 @@ class Accel {
 
   protected:
 	const Scene &m_scene;
-	std::vector<Uint> m_poly_idx;
+	std::vector<Uint> m_poly;
 	const Accel_t m_type;
 	bool m_built;
 };

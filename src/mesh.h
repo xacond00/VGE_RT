@@ -5,8 +5,8 @@
 #include "vec.h"
 
 struct Mesh {
-	bool hit_bbox(const Ray &r, Float t = InfF) const { return m_bbox.ray_test(r, t); }
-	bool intersect(const Ray &r, Float t = InfF) const { return m_bbox.ray_test(r, t); }
+	bool hit_bbox(const Ray &r, Float t) const { return m_bbox.ray_test(r, t); }
+	//bool intersect(const Ray &r, Float t) const { return m_bbox.ray_test(r, t); }
 	Uint beg() const { return m_off; }
 	Uint end() const { return m_off + m_cnt; }
 	Vec2u range() const { return {beg(), end()}; }
