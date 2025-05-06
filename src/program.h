@@ -15,7 +15,8 @@ class Program {
 	
 		SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO | SDL_INIT_GAMEPAD);
 		IMGUI_CHECKVERSION();
-		m_view = Window("View", 600, 600, SDL_PIXELFORMAT_ARGB8888);
+		std::string view_title = std::string("View (") + renderer.m_acc->type_name() + ")";
+		m_view = Window(view_title.c_str(), 600, 600, SDL_PIXELFORMAT_ARGB8888);
 		m_menu = Window("Menu", 480, 720, m_imgui_menu);
 	}
 	~Program() {
@@ -45,9 +46,12 @@ class Program {
 					pixels[y * pitch + x + 3] = 255; // a
 				}
 			}*/
+			m_iteration++;
+
 			m_time = timer();
 			renderer.set_output((Uint*)pixels, pitch);
 			renderer.render();
+			//renderer.m_acc->update();
 			m_time = timer(m_time);
 			m_view.set_surf();
 			m_running = m_view.valid() || m_menu.valid();
@@ -72,6 +76,18 @@ class Program {
 			renderer.m_reset = true;
 			T.update_Tr();
 		}
+
+		Text("Polygons:     %u", renderer.m_scene.poly_cnt());
+		Text("Accel. nodes: %lu", renderer.m_acc->nodes_cnt());
+		
+		// pass times
+		if (m_iteration > 0) {
+			m_time_avg = (m_time_avg * (m_iteration - 1) + m_time) / m_iteration;
+			m_time_min = std::min(m_time_min, m_time);
+			m_time_max = std::max(m_time_max, m_time);
+			Text("time: min       average    max");
+			Text("      %.3f   %.3f    %.3f   [ms]", m_time_min * 1000, m_time_avg * 1000, m_time_max * 1000);
+		}
 		
 		End();
 	};
@@ -85,4 +101,8 @@ class Program {
 	SDL_Event event;
 	bool m_running;
 	double m_time = 0;
+	size_t m_iteration = 0;
+	double m_time_avg = 0;
+	double m_time_min = InfF;
+	double m_time_max = 0;
 };
