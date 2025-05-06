@@ -3,6 +3,7 @@
 #include "aabb.h"
 #include "ray.h"
 #include "scene.h"
+#include <typeinfo>
 
 
 /*
@@ -11,7 +12,7 @@ struct PolyPtr{
 	Uint mesh_idx;
 };*/
 
-enum class Accel_t { None, Bbox, BVH, Octree, Other, LAST };
+enum class Accel_t { None, Bbox, BVH, Octree, Other, LAST, BIH };
 
 
 // Acceleration structure base interface
@@ -60,6 +61,8 @@ class Accel {
 	// Getters
 	bool built() { return m_built; }
 	Accel_t type() const { return m_type; }
+	virtual inline const char* type_name() const { return typeid(*this).name(); }
+	virtual size_t nodes_cnt() const { fprintf(stderr, "Warning: nodes_cnt() not implemented for %s\n", type_name()); return 0; }
 
   protected:
 	const Scene &m_scene;
