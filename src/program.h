@@ -5,7 +5,14 @@
 #include "renderer.h"
 class Program {
   public:
-	Program() : renderer(Scene("../sponza.obj", 0.01), Camera(600,600,90, Transform(Vec3f(3,5,-0.5), Vec3f(0,PihF,0), 1)), Accel_t::BVH) {
+    //TODO: scene selector
+
+  	Program() : renderer(Scene("../sponza.obj", 0.01), Camera(600,600,90, Transform(Vec3f(3,5,-0.5), Vec3f(0,PihF,0), 1)), Accel_t::BIH) {
+	//Program() : renderer(Scene("../bunny.obj", 1.2f), Camera(600,600,90, Transform(Vec3f(0.059,0.235,0.232), Vec3f(0,0.388,-0.292), 1)), Accel_t::BIH) {
+	//Program() : renderer(Scene("../armadillo.obj", 1.2f), Camera(600,600,90, Transform(Vec3f(-1.117,1.7,-2.557), Vec3f(-0.148,3.475,-0.292), 1)), Accel_t::BIH) {
+		printf("Polygons: %u\n", renderer.m_scene.poly_cnt());
+		printf("Nodes:    %lu\n", renderer.m_acc->nodes_cnt());
+	
 		SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO | SDL_INIT_GAMEPAD);
 		IMGUI_CHECKVERSION();
 		m_view = Window("View", 600, 600, SDL_PIXELFORMAT_ARGB8888);
