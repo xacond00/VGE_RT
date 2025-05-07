@@ -39,6 +39,7 @@ class Program {
 	}
 
 	bool run() {
+		double start_t = timer();
 		m_running = true;
 		while (m_running) {
 			while (SDL_PollEvent(&event)) {
@@ -54,13 +55,14 @@ class Program {
 					m_keys[event.key.scancode] = false;
 				}
 			}
-			if (m_keys[SDL_SCANCODE_W] || m_keys[SDL_SCANCODE_S] || m_keys[SDL_SCANCODE_A] || m_keys[SDL_SCANCODE_D] ||
-				m_keys[SDL_SCANCODE_SPACE] || m_keys[SDL_SCANCODE_LCTRL]) {
-				renderer.m_cam.T.P +=
-					renderer.m_cam.T.vec(Vec3f(m_keys[SDL_SCANCODE_D] - Float(m_keys[SDL_SCANCODE_A]), 0,
-											   m_keys[SDL_SCANCODE_S] - Float(m_keys[SDL_SCANCODE_W]))) +
-											   Vec3f(0, m_keys[SDL_SCANCODE_SPACE] - Float( m_keys[SDL_SCANCODE_LCTRL]), 0);
-						
+			if (m_view->keyboard_focus() &&
+				(m_keys[SDL_SCANCODE_W] || m_keys[SDL_SCANCODE_S] || m_keys[SDL_SCANCODE_A] || m_keys[SDL_SCANCODE_D] ||
+				 m_keys[SDL_SCANCODE_SPACE] || m_keys[SDL_SCANCODE_LCTRL])) {
+				auto vel = renderer.m_cam.T.vec(Vec3f(m_keys[SDL_SCANCODE_D] - Float(m_keys[SDL_SCANCODE_A]), 0,
+													  m_keys[SDL_SCANCODE_S] - Float(m_keys[SDL_SCANCODE_W]))) +
+						   Vec3f(0, m_keys[SDL_SCANCODE_SPACE] - Float(m_keys[SDL_SCANCODE_LCTRL]), 0);
+				renderer.m_cam.T.P += Vec3f(m_dt * m_speed) * vel;
+
 				renderer.m_reset = true;
 			}
 
@@ -77,6 +79,7 @@ class Program {
 			m_view->render();
 			m_menu->render();
 		}
+		m_dt = timer(start_t);
 		return true;
 	}
 
@@ -148,6 +151,7 @@ class Program {
 
 		// camera
 		auto &T = renderer.m_cam.T;
+		DragFloat("Movement speed", &m_speed, 1, 0, 10);
 		if (SliderFloat3("Cam Pos", T.P.ptr(), -10, 10, "%.3f"))
 			renderer.m_reset = true;
 		if (SliderFloat3("Cam Ang", T.A.ptr(), -Pi2F, Pi2F, "%.3f")) {
@@ -187,6 +191,8 @@ class Program {
 	SDL_Event event;
 	bool m_running = false;
 	double m_time = 0.0;
+	double m_dt = 0.1;
+	float m_speed = 1;
 	size_t m_iteration = 0;
 	double m_time_avg = 0.0;
 	double m_time_min = InfF;
