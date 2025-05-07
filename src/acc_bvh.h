@@ -159,6 +159,8 @@ class AccelBvh : public Accel {
 	};
 
 	void build() override {
+		double build_timer = timer();
+
 		m_bvh.clear();
 		m_bvh.reserve(1024);
 		m_bvh.emplace_back(m_scene.m_bbox, Vec2u(0, m_poly.size()));
@@ -167,12 +169,20 @@ class AccelBvh : public Accel {
 		m_build_cost = cost;
 		m_update_cost = cost;
 		m_built = true;
+
+		m_build_time = timer(build_timer);
 	}
+
+	// Getters
+	size_t      nodes_cnt()  const override { return m_bvh.size(); }
+	const char *type_name()  const override { return "BVH"; }
+	double      build_time() const override { return m_build_time; }
 
 	std::vector<Node> m_bvh;
 	Uint m_node_size = 4;
 	Float m_update_cost = 0;
 	Float m_build_cost = 0;
+	double m_build_time = 0;
 	// This points to the actual indices of triangles
 	// Need to use m_scene
 };

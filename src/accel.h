@@ -62,7 +62,8 @@ class Accel {
 	bool built() { return m_built; }
 	Accel_t type() const { return m_type; }
 	virtual inline const char* type_name() const { return typeid(*this).name(); }
-	virtual size_t nodes_cnt() const { fprintf(stderr, "Warning: nodes_cnt() not implemented for %s\n", type_name()); return 0; }
+	virtual size_t nodes_cnt()  const { fprintf(stderr, "Warning: nodes_cnt()  not implemented for %s\n", type_name()); return 0; }
+	virtual double build_time() const { fprintf(stderr, "Warning: build_time() not implemented for %s\n", type_name()); return 0; }
 
   protected:
 	const Scene &m_scene;
