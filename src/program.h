@@ -111,6 +111,9 @@ class Program {
 		} else if (m_scene_labels[scene_idx] == "sponza.obj") {
 			renderer.m_cam = Camera(600, 600, 90, Transform(Vec3f(3, 5, -0.5f), Vec3f(0, PihF, 0), 1));
 			scale = 0.01f;
+		} else if (m_scene_labels[scene_idx] == "dragon.obj") {
+			renderer.m_cam = Camera(600, 600, 80, Transform(Vec3f(5.8, 0.2, -3), Vec3f(0, -4, 0), 1));
+			scale = 0.05f;
 		} /* else if {
 			more configs...
 		} */
