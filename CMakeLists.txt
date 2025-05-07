@@ -29,6 +29,7 @@ target_link_libraries(imgui PRIVATE SDL3::SDL3)
 add_executable(vgert
     src/main.cpp
     src/acc_bvh.cpp
+    src/acc_bih.cpp
     src/window.cpp
 )
 

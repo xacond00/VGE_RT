@@ -4,6 +4,7 @@
 #include "acc_bvh.h"
 #include "acc_bbox.h"
 #include "acc_none.h"
+#include "acc_bih.h"
 // Main code
 int main(int, char **) {
 	Program prog;

@@ -3,6 +3,7 @@
 #include "acc_bbox.h"
 #include "acc_bvh.h"
 #include "acc_none.h"
+#include "acc_bih.h"
 #include "accel.h"
 #include "camera.h"
 #include "scene.h"
@@ -31,6 +32,8 @@ class Renderer {
 		} else if (auto acc = dynamic_cast<AccelBvh *>(m_acc)) {
 			render_internal(*acc);
 		} else if (auto acc = dynamic_cast<AccelNone *>(m_acc)) {
+			render_internal(*acc);
+		} else if (auto acc = dynamic_cast<AccelBih *>(m_acc)) {
 			render_internal(*acc);
 		} else {
 			std::cout << "Invalid acceleration structure !";
@@ -94,6 +97,9 @@ class Renderer {
 				break;
 			case Accel_t::BVH:
 				m_acc = new AccelBvh(m_scene);
+				break;
+			case Accel_t::BIH:
+				m_acc = new AccelBih(m_scene);
 				break;
 			// case None:m_acc = new AccelNone(m_scene);
 			default:
