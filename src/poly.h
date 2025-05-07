@@ -18,7 +18,7 @@ struct Vert3{
 
 struct Poly {
 	// 3 points and index
-	Poly(Vec3f a, Vec3f b, Vec3f c, Uint idx = -1) : Q(a), U(b - a), V(c - a), N(cross(U, V)), idx(idx) {}
+	Poly(Vec3f a, Vec3f b, Vec3f c, Uint idx) : Q(a), U(b - a), V(c - a), N(cross(U, V)), idx(idx) {}
 	Poly(const Vert3& v, Uint idx = -1) : Poly(v.data[0], v.data[1], v.data[2], idx){}
 
 	bool intersect(const Ray &r, HitInfo &rec) {
@@ -53,10 +53,11 @@ struct Poly {
 	Uint idx;
 
   private:
+  // Moller-Trumbore algorithm
 	HitInfo bounds_check(const Ray &r)const {
 		Vec3f pV = cross(r.D, V);
 		float D = dot(U, pV);
-		float iD = 1.f / D;
+		float iD = Float(1) / D;
 		Vec3f tV = r.O - Q;
 		Vec3f qV = cross(tV, U);
 		float u = dot(tV, pV) * iD;

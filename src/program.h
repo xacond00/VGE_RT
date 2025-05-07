@@ -65,16 +65,15 @@ class Program {
 
 				renderer.m_reset = true;
 			}
-
-			auto [pixels, height, pitch] = m_view->get_surf();
-			m_iteration++;
 			m_time = timer();
-
-			renderer.set_output((Uint *)pixels, pitch);
-			renderer.render();
+			if ((!renderer.m_pause || renderer.m_reset) && m_view->valid() && m_view->shown() && !m_view->minimized()) {
+				auto [pixels, height, pitch] = m_view->get_surf();
+				m_iteration++;
+				renderer.set_output((Uint *)pixels, pitch);
+				renderer.render();
+				m_view->set_surf();
+			}
 			m_time = timer(m_time);
-
-			m_view->set_surf();
 			m_running = m_view->valid() || m_menu->valid();
 			m_view->render();
 			m_menu->render();
@@ -124,9 +123,7 @@ class Program {
 
 		// reinit stats
 		m_curr_accel_build_time = renderer.m_acc->build_time();
-		m_time_avg = 0.0;
-		m_time_min = InfF;
-		m_time_max = 0.0;
+		reset_stats();
 		m_curr_poly_cnt = renderer.m_scene.poly_cnt();
 		m_curr_accel_nodes_cnt = renderer.m_acc->nodes_cnt();
 	}
@@ -139,6 +136,8 @@ class Program {
 		Begin("Menu", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
 		// Pause button
 		if (Button(renderer.m_pause ? "Unpause" : "Pause")) {
+			if (renderer.m_pause)
+				reset_stats();
 			renderer.m_pause = !renderer.m_pause;
 		}
 		// scene selector
@@ -166,16 +165,21 @@ class Program {
 
 		// timing stats
 		if (m_iteration > 0) {
-			m_time_avg = (m_time_avg * (m_iteration - 1) + m_time) / m_iteration;
+			m_time_avg += m_time; //(m_time_avg * (m_iteration - 1) + m_time) / m_iteration;
 			m_time_min = std::min(m_time_min, m_time);
 			m_time_max = std::max(m_time_max, m_time);
 			Text("\nrender: min       avg       max [ms]");
-			Text("        %.3f   %.3f   %.3f", m_time_min * 1000, m_time_avg * 1000, m_time_max * 1000);
+			Text("        %.3f   %.3f   %.3f", m_time_min * 1000, 1000.0f / ImGui::GetIO().Framerate,
+				 m_time_max * 1000);
 		}
 
 		End();
 	};
-
+	void reset_stats() {
+		m_time_avg = 0.0;
+		m_time_min = InfF;
+		m_time_max = 0.0;
+	}
 	// members
 	std::vector<std::string> m_scene_paths;
 	std::vector<std::string> m_scene_labels;

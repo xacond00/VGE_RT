@@ -28,22 +28,22 @@ class Renderer {
 	void render() {
 		if(m_pause == true && !m_reset) return;
 		if (auto acc = dynamic_cast<AccelNone *>(m_acc)) {
-			render_internal(*acc);
+			render_internal(acc);
 		} else if (auto acc = dynamic_cast<AccelBbox *>(m_acc)) {
-			render_internal(*acc);
+			render_internal(acc);
 		} else if (auto acc = dynamic_cast<AccelBvh *>(m_acc)) {
-			render_internal(*acc);
+			render_internal(acc);
 		} else if (auto acc = dynamic_cast<AccelKdTree*>(m_acc)) {
-			render_internal(*acc);
+			render_internal(acc);
 		} else if (auto acc = dynamic_cast<AccelBih *>(m_acc)) {
-			render_internal(*acc);
+			render_internal(acc);
 		} else {
 			std::cout << "Invalid acceleration structure !";
 		}
 	}
 
 	template <class Acc>
-	void render_internal(const Acc &acc) {
+	void render_internal(const Acc *acc) {
 		auto &film = m_cam.film;
 		auto dims = m_cam.film_size();
 		if (m_reset)
@@ -116,13 +116,13 @@ class Renderer {
 	}
 
 	template <class Acc>
-	Vec3f sample(const Acc &acc, RNG &rng, Ray r) const {
+	Vec3f sample(const Acc *acc, RNG &rng, Ray r) const {
 		HitInfo rec;
 		Vec3f result(0);
 		Vec3f weight(1);
 		Uint depth = m_depth;
 		while (depth > 0) {
-			bool hit = acc.intersect(r, rec);
+			bool hit = acc->intersect(r, rec);
 			if (!hit) { // Sky
 				//return Vec3f(0.2, 0.2, 0.2);
 				float val = std::pow(max(r.D.shrink(), Vec2f(0)).len2(), 16);
