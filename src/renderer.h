@@ -3,6 +3,7 @@
 #include "acc_bbox.h"
 #include "acc_bvh.h"
 #include "acc_none.h"
+#include "acc_kdtree.h"
 #include "acc_bih.h"
 #include "accel.h"
 #include "camera.h"
@@ -25,13 +26,14 @@ class Renderer {
 		set_accelerator(acc_t);
 	}
 	void render() {
+		if(m_pause == true && !m_reset) return;
 		if (auto acc = dynamic_cast<AccelNone *>(m_acc)) {
 			render_internal(*acc);
 		} else if (auto acc = dynamic_cast<AccelBbox *>(m_acc)) {
 			render_internal(*acc);
 		} else if (auto acc = dynamic_cast<AccelBvh *>(m_acc)) {
 			render_internal(*acc);
-		} else if (auto acc = dynamic_cast<AccelNone *>(m_acc)) {
+		} else if (auto acc = dynamic_cast<AccelKdTree*>(m_acc)) {
 			render_internal(*acc);
 		} else if (auto acc = dynamic_cast<AccelBih *>(m_acc)) {
 			render_internal(*acc);
@@ -49,7 +51,7 @@ class Renderer {
 
 		const unsigned num_threads = std::thread::hardware_concurrency();
 		std::vector<std::thread> threads;
-
+		// Parallel for loop
 		auto render_chunk = [&](Uint start_row, Uint end_row) { 
             RNG rng = RNG(std::rand() + 1);
 			for (Uint i = start_row; i < end_row; ++i) {
@@ -98,6 +100,9 @@ class Renderer {
 			case Accel_t::BVH:
 				m_acc = new AccelBvh(m_scene);
 				break;
+				case Accel_t::KdTree:
+				m_acc = new AccelKdTree(m_scene);
+				break;
 			case Accel_t::BIH:
 				m_acc = new AccelBih(m_scene);
 				break;
@@ -105,6 +110,9 @@ class Renderer {
 			default:
 				break;
 		};
+		if(!m_acc->built()){
+			m_acc->build();
+		}
 	}
 
 	template <class Acc>
@@ -143,4 +151,5 @@ class Renderer {
 	Uint m_depth = 5;
 	Uint m_spp = 1;
 	bool m_reset = true;
+	bool m_pause = true;
 };

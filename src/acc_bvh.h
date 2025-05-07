@@ -25,8 +25,6 @@ class AccelBvh : public Accel {
 		build();
 	}
 
-	void bvh_builder() {}
-
 	// virtual ~AccelBvh() {}
 
 	bool intersect(const Ray &r, HitInfo &rec) const override {

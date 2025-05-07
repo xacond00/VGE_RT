@@ -12,7 +12,7 @@ struct PolyPtr{
 	Uint mesh_idx;
 };*/
 
-enum class Accel_t { None, Bbox, BVH, Octree, Other, LAST, BIH };
+enum class Accel_t { None, Bbox, BVH, KdTree, BIH, LAST };
 
 
 // Acceleration structure base interface

@@ -1,18 +1,21 @@
 #pragma once
 // Created by Ondrej Ac (xacond00)
 
-#include "window.h"
 #include "renderer.h"
+#include "window.h"
 class Program {
   public:
-    //TODO: scene selector
+	// TODO: scene selector
 
-  	Program() : renderer(Scene("../sponza.obj", 0.01), Camera(600,600,90, Transform(Vec3f(3,5,-0.5), Vec3f(0,PihF,0), 1)), Accel_t::BIH) {
-	//Program() : renderer(Scene("../bunny.obj", 1.2f), Camera(600,600,90, Transform(Vec3f(0.059,0.235,0.232), Vec3f(0,0.388,-0.292), 1)), Accel_t::BIH) {
-	//Program() : renderer(Scene("../armadillo.obj", 1.2f), Camera(600,600,90, Transform(Vec3f(-1.117,1.7,-2.557), Vec3f(-0.148,3.475,-0.292), 1)), Accel_t::BIH) {
+	Program()
+		: renderer(Scene("../sponza.obj", 0.01),
+				   Camera(600, 600, 90, Transform(Vec3f(3, 5, -0.5), Vec3f(0, PihF, 0), 1)), Accel_t::BIH) {
+		// Program() : renderer(Scene("../bunny.obj", 1.2f), Camera(600,600,90, Transform(Vec3f(0.059,0.235,0.232),
+		// Vec3f(0,0.388,-0.292), 1)), Accel_t::BIH) { Program() : renderer(Scene("../armadillo.obj", 1.2f),
+		// Camera(600,600,90, Transform(Vec3f(-1.117,1.7,-2.557), Vec3f(-0.148,3.475,-0.292), 1)), Accel_t::BIH) {
 		printf("Polygons: %u\n", renderer.m_scene.poly_cnt());
 		printf("Nodes:    %lu\n", renderer.m_acc->nodes_cnt());
-	
+
 		SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO | SDL_INIT_GAMEPAD);
 		IMGUI_CHECKVERSION();
 		std::string view_title = std::string("View (") + renderer.m_acc->type_name() + ")";
@@ -36,24 +39,17 @@ class Program {
 				m_view.scan_event(event);
 				m_menu.scan_event(event);
 			}
-			auto [pixels, height, pitch] = m_view.get_surf();
-			/*
-			for (uint32_t y = 0; y < height; y++) {
-				for (uint32_t x = 0; x < pitch; x += 4) {
-					pixels[y * pitch + x] = 0;		 // b
-					pixels[y * pitch + x + 1] = 255; // g
-					pixels[y * pitch + x + 2] = 255; // r
-					pixels[y * pitch + x + 3] = 255; // a
-				}
-			}*/
-			m_iteration++;
+			if (m_view.shown()) {
+				auto [pixels, height, pitch] = m_view.get_surf();
+				m_iteration++;
 
-			m_time = timer();
-			renderer.set_output((Uint*)pixels, pitch);
-			renderer.render();
-			//renderer.m_acc->update();
-			m_time = timer(m_time);
-			m_view.set_surf();
+				m_time = timer();
+				renderer.set_output((Uint *)pixels, pitch);
+				renderer.render();
+				// renderer.m_acc->update();
+				m_time = timer(m_time);
+				m_view.set_surf();
+			}
 			m_running = m_view.valid() || m_menu.valid();
 			m_view.render();
 			m_menu.render();
@@ -68,18 +64,21 @@ class Program {
 		SetNextWindowPos({0, 0});
 		SetNextWindowSize({(float)m_menu.width(), (float)m_menu.height()});
 		Begin("Menu", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
-		auto& T = renderer.m_cam.T;
-		if(SliderFloat3("Cam P", T.P.ptr(), -10, 10, "%.3f")){
+		if (Button(renderer.m_pause ? "Unpause" : "Pause")) {
+			renderer.m_pause = !renderer.m_pause;
+		}
+		auto &T = renderer.m_cam.T;
+		if (SliderFloat3("Cam P", T.P.ptr(), -10, 10, "%.3f")) {
 			renderer.m_reset = true;
 		}
-		if(SliderFloat3("Cam A", T.A.ptr(), -Pi2F, Pi2F, "%.3f")){
+		if (SliderFloat3("Cam A", T.A.ptr(), -Pi2F, Pi2F, "%.3f")) {
 			renderer.m_reset = true;
 			T.update_Tr();
 		}
 
 		Text("Polygons:     %u", renderer.m_scene.poly_cnt());
 		Text("Accel. nodes: %lu", renderer.m_acc->nodes_cnt());
-		
+
 		// pass times
 		if (m_iteration > 0) {
 			m_time_avg = (m_time_avg * (m_iteration - 1) + m_time) / m_iteration;
@@ -88,7 +87,7 @@ class Program {
 			Text("time: min       average    max");
 			Text("      %.3f   %.3f    %.3f   [ms]", m_time_min * 1000, m_time_avg * 1000, m_time_max * 1000);
 		}
-		
+
 		End();
 	};
 

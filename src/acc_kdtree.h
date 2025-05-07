@@ -3,6 +3,7 @@
 * author: Jozef Bilko (xbilko03)
 */
 #include "accel.h"
+#include <algorithm>
 
 class AccelKdTree : public Accel {
 
@@ -18,9 +19,9 @@ class AccelKdTree : public Accel {
     };
 
 public:
-    AccelKdTree(const Scene &scene) : Accel(scene, Accel_t::Octree) {}
+    AccelKdTree(const Scene &scene) : Accel(scene, Accel_t::KdTree) {}
 
-    ~AccelKdTree() override {}
+    //~AccelKdTree() override {}
 
     bool intersect(const Ray &r, HitInfo &rec) const override {
         return traverse_tree(r, rec, 0);
