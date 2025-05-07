@@ -95,6 +95,8 @@ bool AccelBih::ray_test(const Ray &ray_query, Float t_max) const
 
 void AccelBih::build()
 {
+    double build_timer = timer();
+
     nodes.clear();
     nodes.reserve(m_scene.poly_cnt());
     // root node contains all polygons
@@ -105,6 +107,8 @@ void AccelBih::build()
     last_build_cost  = total_cost;
     last_update_cost = total_cost;
     m_built          = true;
+
+    last_build_time = timer(build_timer);
 }
 
 
