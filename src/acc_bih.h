@@ -131,9 +131,11 @@ private:
 
     size_t      nodes_cnt() const override { return nodes.size(); }
     const char* type_name() const override { return "BIH"; }
+    double      build_time() const override { return last_build_time; }
 
     std::vector<BihNode> nodes;                // All BIH nodes in flat array
     Uint                 max_leaf_polygons;    // Leaf split threshold
     Float                last_build_cost  = 0; // SAH cost from last build
     Float                last_update_cost = 0; // SAH cost from last update
+    double               last_build_time  = 0; // Last build time
 };
