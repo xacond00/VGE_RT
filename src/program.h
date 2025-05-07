@@ -28,7 +28,7 @@ class Program {
 		IMGUI_CHECKVERSION();
 
 		m_view = std::make_unique<Window>("View", 600, 600, SDL_PIXELFORMAT_ARGB8888);
-		m_menu = std::make_unique<Window>("Menu", 480, 260, m_imgui_menu);
+		m_menu = std::make_unique<Window>("Menu", 480, 300, m_imgui_menu);
 	}
 
 	~Program() {
@@ -62,18 +62,16 @@ class Program {
 				auto vel = renderer.m_cam.T.vec(Vec3f(m_keys[SDL_SCANCODE_D] - Float(m_keys[SDL_SCANCODE_A]), 0,
 													  m_keys[SDL_SCANCODE_S] - Float(m_keys[SDL_SCANCODE_W]))) +
 						   Vec3f(0, m_keys[SDL_SCANCODE_SPACE] - Float(m_keys[SDL_SCANCODE_LCTRL]), 0);
-				renderer.m_cam.T.P += Vec3f(m_dt * m_speed) * vel;
+				renderer.m_cam.T.P += Vec3f(m_dt * m_cam_speed) * vel;
 
 				renderer.m_reset = true;
 			}
-			m_time = timer();
 			if ((!renderer.m_pause || renderer.m_reset) && m_view->valid() && m_view->shown() && !m_view->minimized()) {
 				auto [pixels, height, pitch] = m_view->get_surf();
 				renderer.set_output((Uint *)pixels, pitch);
 				renderer.render();
 				m_view->set_surf();
 			}
-			m_time = timer(m_time);
 			m_running = m_view->valid() || m_menu->valid();
 			m_view->render();
 			m_menu->render();
@@ -149,9 +147,10 @@ class Program {
 		SetNextWindowSize({(float)m_menu->width(), (float)m_menu->height()});
 		Begin("Menu", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
 		// Pause button
-		if (Button(renderer.m_pause ? "Unpause" : "Pause")) {
+		if (Button(renderer.m_pause ? "Unpause" : "Pause"))
 			renderer.m_pause = !renderer.m_pause;
-		}
+		Spacing();
+
 		// scene selector
 		std::vector<const char *> scene_labels_cstr;
 		scene_labels_cstr.reserve(m_scene_labels.size());
@@ -164,24 +163,27 @@ class Program {
 		if (Combo("Accelerator", (int *)&m_curr_accel_type, accel_t_names, int(Accel_t::LAST)))
 			set_accelerator(m_curr_accel_type);
 
-		//spacer
+		//large spacer
 		Text(" ");
 
 		// camera
 		auto &T = renderer.m_cam.T;
-		DragFloat("Movement speed", &m_speed, 0.1, 0, 10);
+		DragFloat("Movement speed", &m_cam_speed, 0.1, 0, 10);
 		if (SliderFloat3("Cam Pos", T.P.ptr(), -10, 10, "%.3f"))
 			renderer.m_reset = true;
 		if (SliderFloat3("Cam Ang", T.A.ptr(), -Pi2F, Pi2F, "%.3f")) {
 			renderer.m_reset = true;
 			T.update_Tr();
 		}
+		Spacing();
 
 		// scene stats
 		Text("Polygons:     %u", m_curr_poly_cnt);
 		Text("Accel. nodes: %lu", m_curr_accel_nodes_cnt);
-		Text("Accel. build: %.3f [ms]", m_curr_accel_build_time * 1000);
+		Text("Accel. build: %.3f ms", m_curr_accel_build_time * 1000);
 		Text("\nIteration: %lu", renderer.m_iteration);
+		ImGuiIO& io = ImGui::GetIO();
+		ImGui::Text("%.3f ms/frame (%.1f FPS)", io.DeltaTime, io.Framerate);
 
 		End();
 	};
@@ -200,9 +202,8 @@ class Program {
 	std::unique_ptr<Window> m_menu;
 	SDL_Event event;
 	bool m_running = false;
-	double m_time = 0.0;
 	double m_dt = 0.1;
-	float m_speed = 1;
+	float m_cam_speed = 1;
 
 	std::vector<bool> m_keys = std::vector<bool>(512, false);
 };
