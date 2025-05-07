@@ -14,9 +14,11 @@ class Program {
 	Program() : renderer() {
 		fetch_scene_files("../");
 
-		// init renderer without scene
-		renderer.set_accelerator(m_curr_accel_type);
+		// init only camera on renderer
 		renderer.m_cam = Camera(600, 600, 90, Transform(Vec3f(0, 0, 0), Vec3f(0, PihF, 0), 1));
+
+		// set default accelerator
+		set_accelerator(m_curr_accel_type);
 
 		// load the default scene
 		load_scene(m_selected_scene_idx);
@@ -25,9 +27,8 @@ class Program {
 		SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO | SDL_INIT_GAMEPAD);
 		IMGUI_CHECKVERSION();
 
-		std::string view_title = std::string("View (") + renderer.m_acc->type_name() + ")";
-		m_view = std::make_unique<Window>(view_title.c_str(), 600, 600, SDL_PIXELFORMAT_ARGB8888);
-		m_menu = std::make_unique<Window>("Menu", 480, 720, m_imgui_menu);
+		m_view = std::make_unique<Window>("View", 600, 600, SDL_PIXELFORMAT_ARGB8888);
+		m_menu = std::make_unique<Window>("Menu", 480, 260, m_imgui_menu);
 	}
 
 	~Program() {
@@ -68,7 +69,6 @@ class Program {
 			m_time = timer();
 			if ((!renderer.m_pause || renderer.m_reset) && m_view->valid() && m_view->shown() && !m_view->minimized()) {
 				auto [pixels, height, pitch] = m_view->get_surf();
-				m_iteration++;
 				renderer.set_output((Uint *)pixels, pitch);
 				renderer.render();
 				m_view->set_surf();
@@ -98,6 +98,18 @@ class Program {
 			throw std::runtime_error("No " + ext + " files found in " + path);
 	}
 
+	void set_accelerator(Accel_t type) {
+		m_curr_accel_type = type;
+
+		renderer.m_reset = true;
+		renderer.set_accelerator(type);
+
+		// set stats
+		m_curr_accel_build_time = renderer.m_acc->build_time();
+		m_curr_poly_cnt = renderer.m_scene.poly_cnt();
+		m_curr_accel_nodes_cnt = renderer.m_acc->nodes_cnt();
+	}
+
 	// swap in a new Scene and rebuild accel
 	void load_scene(int scene_idx) {
 		// set default camera and scale
@@ -106,7 +118,7 @@ class Program {
 			renderer.m_cam = Camera(600, 600, 80, Transform(Vec3f(-1.117, 1.7, -2.557), Vec3f(-0.148, 3.5, -0.292), 1));
 			scale = 1.2f;
 		} else if (m_scene_labels[scene_idx] == "bunny.obj") {
-			renderer.m_cam = Camera(600, 600, 90, Transform(Vec3f(0.059, 0.235, 0.232), Vec3f(0, 0.388, -0.292), 1));
+			renderer.m_cam = Camera(600, 600, 90, Transform(Vec3f(0.032, 0.17, 0.139), Vec3f(0, 0.388, -0.292), 1));
 			scale = 1.2f;
 		} else if (m_scene_labels[scene_idx] == "sponza.obj") {
 			renderer.m_cam = Camera(600, 600, 90, Transform(Vec3f(3, 5, -0.5f), Vec3f(0, PihF, 0), 1));
@@ -124,14 +136,13 @@ class Program {
 		// reinit accelerator to properly load the polys, etc... could be done better
 		renderer.set_accelerator(renderer.m_acc->type());
 
-		// reinit stats
+		// set stats
 		m_curr_accel_build_time = renderer.m_acc->build_time();
-		reset_stats();
 		m_curr_poly_cnt = renderer.m_scene.poly_cnt();
 		m_curr_accel_nodes_cnt = renderer.m_acc->nodes_cnt();
 	}
 
-	// ImGui menu callback
+	// imgui menu callback
 	std::function<void(void)> m_imgui_menu = [this]() {
 		using namespace ImGui;
 		SetNextWindowPos({0, 0});
@@ -139,8 +150,6 @@ class Program {
 		Begin("Menu", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
 		// Pause button
 		if (Button(renderer.m_pause ? "Unpause" : "Pause")) {
-			if (renderer.m_pause)
-				reset_stats();
 			renderer.m_pause = !renderer.m_pause;
 		}
 		// scene selector
@@ -151,9 +160,16 @@ class Program {
 		if (Combo("Scene", &m_selected_scene_idx, scene_labels_cstr.data(), scene_labels_cstr.size()))
 			load_scene(m_selected_scene_idx);
 
+		// accelerator selector
+		if (Combo("Accelerator", (int *)&m_curr_accel_type, accel_t_names, int(Accel_t::LAST)))
+			set_accelerator(m_curr_accel_type);
+
+		//spacer
+		Text(" ");
+
 		// camera
 		auto &T = renderer.m_cam.T;
-		DragFloat("Movement speed", &m_speed, 1, 0, 10);
+		DragFloat("Movement speed", &m_speed, 0.1, 0, 10);
 		if (SliderFloat3("Cam Pos", T.P.ptr(), -10, 10, "%.3f"))
 			renderer.m_reset = true;
 		if (SliderFloat3("Cam Ang", T.A.ptr(), -Pi2F, Pi2F, "%.3f")) {
@@ -164,31 +180,18 @@ class Program {
 		// scene stats
 		Text("Polygons:     %u", m_curr_poly_cnt);
 		Text("Accel. nodes: %lu", m_curr_accel_nodes_cnt);
-		Text("Accel. build: %.6f [ms]", m_curr_accel_build_time * 1000);
-
-		// timing stats
-		if (m_iteration > 0) {
-			m_time_avg += m_time; //(m_time_avg * (m_iteration - 1) + m_time) / m_iteration;
-			m_time_min = std::min(m_time_min, m_time);
-			m_time_max = std::max(m_time_max, m_time);
-			Text("\nrender: min       avg       max [ms]");
-			Text("        %.3f   %.3f   %.3f", m_time_min * 1000, 1000.0f / ImGui::GetIO().Framerate,
-				 m_time_max * 1000);
-		}
+		Text("Accel. build: %.3f [ms]", m_curr_accel_build_time * 1000);
+		Text("\nIteration: %lu", renderer.m_iteration);
 
 		End();
 	};
-	void reset_stats() {
-		m_time_avg = 0.0;
-		m_time_min = InfF;
-		m_time_max = 0.0;
-	}
+
 	// members
 	std::vector<std::string> m_scene_paths;
 	std::vector<std::string> m_scene_labels;
 	int m_selected_scene_idx = 0;
 	Uint m_curr_poly_cnt = 0;
-	Accel_t m_curr_accel_type = Accel_t::BVH; // TODO: accelerator selector
+	Accel_t m_curr_accel_type = Accel_t::BVH;
 	double m_curr_accel_build_time = 0.0;
 	size_t m_curr_accel_nodes_cnt = 0;
 
@@ -200,9 +203,6 @@ class Program {
 	double m_time = 0.0;
 	double m_dt = 0.1;
 	float m_speed = 1;
-	size_t m_iteration = 0;
-	double m_time_avg = 0.0;
-	double m_time_min = InfF;
-	double m_time_max = 0.0;
+
 	std::vector<bool> m_keys = std::vector<bool>(512, false);
 };

@@ -174,9 +174,8 @@ class AccelBvh : public Accel {
 	}
 
 	// Getters
-	size_t      nodes_cnt()  const override { return m_bvh.size(); }
-	const char *type_name()  const override { return "BVH"; }
-	double      build_time() const override { return m_build_time; }
+	size_t nodes_cnt()  const override { return m_bvh.size(); }
+	double build_time() const override { return m_build_time; }
 
 	std::vector<Node> m_bvh;
 	Uint m_node_size = 4;

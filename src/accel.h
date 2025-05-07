@@ -13,6 +13,7 @@ struct PolyPtr{
 };*/
 
 enum class Accel_t { None, Bbox, BVH, KdTree, BIH, LAST };
+static const char* accel_t_names[] = {"None", "Bbox", "BVH", "KdTree", "BIH"};
 
 
 // Acceleration structure base interface
@@ -61,9 +62,9 @@ class Accel {
 	// Getters
 	bool built() { return m_built; }
 	Accel_t type() const { return m_type; }
-	virtual inline const char* type_name() const { return typeid(*this).name(); }
-	virtual size_t nodes_cnt()  const { fprintf(stderr, "Warning: nodes_cnt()  not implemented for %s\n", type_name()); return 0; }
-	virtual double build_time() const { fprintf(stderr, "Warning: build_time() not implemented for %s\n", type_name()); return 0; }
+
+	virtual size_t nodes_cnt()  const { fprintf(stderr, "Warning: nodes_cnt()  not implemented for %s\n", typeid(*this).name()); return 0; }
+	virtual double build_time() const { fprintf(stderr, "Warning: build_time() not implemented for %s\n", typeid(*this).name()); return 0; }
 
   protected:
 	const Scene &m_scene;

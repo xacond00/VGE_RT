@@ -46,8 +46,12 @@ class Renderer {
 	void render_internal(const Acc *acc) {
 		auto &film = m_cam.film;
 		auto dims = m_cam.film_size();
-		if (m_reset)
+		if (m_reset) {
+			m_iteration = 0;
 			film.reset();
+		}
+
+		m_iteration++;
 
 		const unsigned num_threads = std::thread::hardware_concurrency();
 		std::vector<std::thread> threads;
@@ -152,4 +156,5 @@ class Renderer {
 	Uint m_spp = 1;
 	bool m_reset = true;
 	bool m_pause = true;
+	size_t m_iteration = 0;
 };
