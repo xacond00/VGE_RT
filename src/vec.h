@@ -42,7 +42,12 @@ struct alignas(sizeof(T)) Vec_t {
 		}
 		std::cout << data[N - 1] << ")\n";
 	}
-
+	inline Vec_t& operator+=(const Vec_t& other){
+		for (Uint i = 0; i < N; i++) {
+			data[i] += other[i];
+		}
+		return *this;
+	}
 	Vec_t<T, N + 1> append(Float t = 0) const {
 		Vec_t<T, N + 1> res;
 		for (Uint i = 0; i < N; i++) {
