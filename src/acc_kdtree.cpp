@@ -8,19 +8,6 @@
 #include "acc_kdtree.h"
 #include <algorithm>
 
-/* construct */
-AccelKdTree::Node::Node(const AABB& inputBox, const Vec2u& inputRange)
-    : box(inputBox), range(inputRange)
-{
-    /* empty */
-}
-
-AccelKdTree::Node::Node(AABB&& inputBox, Vec2u&& inputRange)
-    : box(std::move(inputBox)), range(std::move(inputRange))
-{
-    /* empty */
-}
-
 AccelKdTree::AccelKdTree(const Scene& scene, unsigned inputNodeSize)
     : Accel(scene, Accel_t::KdTree), nodeSize(inputNodeSize)
 {
@@ -63,6 +50,9 @@ void AccelKdTree::build()
     buildTime = timer(elapsedTime);
 }
 
+    /* dfs tree traverse */
+        /* check hit on aabb */
+                /* test polygons in range */
 /* override */
 bool AccelKdTree::intersect(const Ray& r, HitInfo& rec) const
 {
@@ -70,31 +60,29 @@ bool AccelKdTree::intersect(const Ray& r, HitInfo& rec) const
     unsigned sptr = 0;
     stack[sptr++] = 0;
 
-    /* dfs tree traverse */
     while (sptr)
     {
         const Node& node = m_kdtree[stack[--sptr]];
 
-        /* check hit on aabb */
         if (node.box.ray_test(r, rec.t()))
         {
-            if (node.range[0] > node.range[1])
+            if (node.isLeaf)
             {
-                stack[sptr++] = node.range[0];
-                stack[sptr++] = node.range[1];
-            }
-            else
-            {
-                /* test polygons in range */
                 for (unsigned i = node.range[0]; i < node.range[1]; i++)
                 {
                     poly(i).intersect(r, rec);
                 }
             }
+            else
+            {
+                stack[sptr++] = node.leftChild;
+                stack[sptr++] = node.rightChild;
+            }
         }
     }
     return rec.idx != -1;
 }
+
 
 /* override */
 bool AccelKdTree::ray_test(const Ray& r, float t) const
@@ -103,22 +91,14 @@ bool AccelKdTree::ray_test(const Ray& r, float t) const
     unsigned sptr = 0;
     stack[sptr++] = 0;
 
-    /* dfs tree traverse */
     while (sptr)
     {
         const Node& node = m_kdtree[stack[--sptr]];
 
-        /* check hit on aabb */
         if (node.box.ray_test(r, t))
         {
-            if (node.range[0] > node.range[1])
+            if (node.isLeaf)
             {
-                stack[sptr++] = node.range[0];
-                stack[sptr++] = node.range[1];
-            }
-            else
-            {
-                /* test polygons in range */
                 for (unsigned i = node.range[0]; i < node.range[1]; i++)
                 {
                     if (poly(i).ray_test(r, t))
@@ -127,10 +107,16 @@ bool AccelKdTree::ray_test(const Ray& r, float t) const
                     }
                 }
             }
+            else
+            {
+                stack[sptr++] = node.leftChild;
+                stack[sptr++] = node.rightChild;
+            }
         }
     }
     return false;
 }
+
 
 std::pair<float, unsigned> AccelKdTree::splitPolygons(const Vec2u& range, const AABB& bbox)
 {
@@ -207,30 +193,37 @@ std::pair<float, unsigned> AccelKdTree::splitPolygons(const Vec2u& range, const 
     return {bestCost, splitIdx};
 }
 
-void AccelKdTree::splitKdtree(unsigned node, float &buildCost)
+        /* split node and assign polygons between them */
+            /* create child nodes */
+            /* split children */
+void AccelKdTree::splitKdtree(unsigned nodeIdx, float& buildCost)
 {
-    const AABB &bbox = m_kdtree[node].box;
-    unsigned start = m_kdtree[node].range[0];
-    unsigned end = m_kdtree[node].range[1];
+    Node& node = m_kdtree[nodeIdx];
+    const AABB& bbox = node.box;
+    unsigned start = node.range[0];
+    unsigned end = node.range[1];
     unsigned size = end - start;
     float currentNodeCost = bbox.area() * size;
 
     if (size > nodeSize) {
-        /* split node and assign polygons between them */
-        auto [cost, mi] = splitPolygons(m_kdtree[node].range, bbox);
-        
+        auto [cost, mi] = splitPolygons(node.range, bbox);
+
         if (mi > start && mi < end && cost < currentNodeCost)
         {
-            /* create child nodes */
-            m_kdtree[node].range = {m_kdtree.size() + 1, m_kdtree.size()};
-            Vec2u left(start, mi);
-            Vec2u right(mi, end);
-            m_kdtree.emplace_back(bbox_in(left), left);
-            m_kdtree.emplace_back(bbox_in(right), right);
+            Vec2u leftRange(start, mi);
+            Vec2u rightRange(mi, end);
 
-            /* split children */
-            splitKdtree(m_kdtree[node].range[0], buildCost);
-            splitKdtree(m_kdtree[node].range[1], buildCost);
+            uint32_t leftIdx = m_kdtree.size();
+            m_kdtree.emplace_back(bbox_in(leftRange), leftRange);
+
+            uint32_t rightIdx = m_kdtree.size();
+            m_kdtree.emplace_back(bbox_in(rightRange), rightRange);
+
+            // Prepíš pôvodný node na vnútorný
+            node = Node(bbox, leftIdx, rightIdx);
+
+            splitKdtree(leftIdx, buildCost);
+            splitKdtree(rightIdx, buildCost);
         }
         else
         {
@@ -242,6 +235,7 @@ void AccelKdTree::splitKdtree(unsigned node, float &buildCost)
         buildCost += currentNodeCost;
     }
 }
+            
 
 unsigned AccelKdTree::sortPolygons(const Vec2u& range, unsigned axis, float plane)
 {
@@ -270,39 +264,39 @@ unsigned AccelKdTree::sortPolygons(const Vec2u& range, unsigned axis, float plan
     return left;
 }
 
-void AccelKdTree::updateKdtree()
-{
-    double t_start = timer();
-    float totalCost = 0.0f;
-
     /* bottom-up tree traverse */
-    for (int i = static_cast<int>(m_kdtree.size()) - 1; i >= 0; i--)
-    {
-        Node& node = m_kdtree[i];
-
-        bool isLeaf = node.range[0] < node.range[1];
-        if (isLeaf)
-        {
             /* create new aabb for this node */
-            node.box = bbox_in(node.range);
-            totalCost += node.box.area() * (node.range[1] - node.range[0]);
+            /* create new aabb based on the children */
+    /* if new cost is worse than original, rebuild tree */
+    void AccelKdTree::updateKdtree()
+    {
+        double t_start = timer();
+        float totalCost = 0.0f;
+    
+        for (int i = static_cast<int>(m_kdtree.size()) - 1; i >= 0; i--)
+        {
+            Node& node = m_kdtree[i];
+    
+            if (node.isLeaf)
+            {
+                node.box = bbox_in(node.range);
+                totalCost += node.box.area() * (node.range[1] - node.range[0]);
+            }
+            else
+            {
+                const AABB& leftBox  = m_kdtree[node.leftChild].box;
+                const AABB& rightBox = m_kdtree[node.rightChild].box;
+                node.box = leftBox + rightBox;
+            }
+        }
+    
+        if (totalCost > 1.2f * buildCost)
+        {
+            build();
         }
         else
         {
-            /* create new aabb based on the children */
-            const AABB& leftBox  = m_kdtree[node.range[0]].box;
-            const AABB& rightBox = m_kdtree[node.range[1]].box;
-            node.box = leftBox + rightBox;
+            updateCost = totalCost;
         }
     }
-
-    /* if new cost is worse than original, rebuild tree */
-    if (totalCost > 1.2f * buildCost)
-    {
-        build();
-    }
-    else
-    {
-        updateCost = totalCost;
-    }
-}
+    
