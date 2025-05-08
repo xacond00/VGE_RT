@@ -71,8 +71,6 @@ private:
         Vec2u   index_range;   // If leaf: [start,end) in poly_index; if internal: [right,left) child-node indices
 
         BihNode() = default;
-        BihNode(AABB &&bounds, Vec2u &&index_range)
-            : bounds(std::move(bounds)), index_range(std::move(index_range)) {}
         BihNode(const AABB &bounds, const Vec2u &index_range)
             : bounds(bounds), index_range(index_range) {}
 

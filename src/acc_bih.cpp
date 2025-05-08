@@ -7,11 +7,12 @@
 #include "acc_bih.h"
 #include <algorithm>
 
+#define STACK_SIZE 64
+
 bool AccelBih::intersect(const Ray &ray_query, HitInfo &hit_info) const
 {
     struct stack_item { Uint node_index; Float entry_t; };
-    constexpr Uint STACK_CAP = 64;
-    stack_item stack[STACK_CAP];
+    stack_item stack[STACK_SIZE];
     Uint sp = 0;
 
     // Root-box test
@@ -36,13 +37,15 @@ bool AccelBih::intersect(const Ray &ray_query, HitInfo &hit_info) const
         // compute child intervals
         bool hit_left, hit_right;
         Float enter_left, enter_right;
-        compute_child_hit_intervals(node, ray_query, hit_info.t(),
-                                   hit_left, hit_right,
-                                   enter_left, enter_right);
+        compute_child_hit_intervals(
+            node, ray_query, hit_info.t(),
+            hit_left, hit_right,
+            enter_left, enter_right
+        );
 
         Uint left_child  = node.index_range[1];
         Uint right_child = node.index_range[0];
-        // push near-first
+        // push nearer first
         if (hit_left && hit_right) {
             if (enter_left < enter_right) {
                 stack[sp++] = { right_child, enter_right };
@@ -63,8 +66,7 @@ bool AccelBih::intersect(const Ray &ray_query, HitInfo &hit_info) const
 
 bool AccelBih::ray_test(const Ray &ray_query, Float t_max) const
 {
-    constexpr Uint STACK_CAP = 64;
-    Uint stack[STACK_CAP];
+    Uint stack[STACK_SIZE];
     Uint sp = 0;
 
     if (!nodes[0].bounds.ray_test(ray_query, t_max))
@@ -82,7 +84,11 @@ bool AccelBih::ray_test(const Ray &ray_query, Float t_max) const
 
         bool hit_left, hit_right;
         Float enter_left, enter_right;
-        compute_child_hit_intervals(node, ray_query, t_max, hit_left, hit_right, enter_left, enter_right);
+        compute_child_hit_intervals(
+            node, ray_query, t_max,
+            hit_left, hit_right,
+            enter_left, enter_right
+        );
 
         Uint left_child  = node.index_range[1];
         Uint right_child = node.index_range[0];
@@ -126,7 +132,8 @@ std::pair<Float,Uint> AccelBih::find_split_sah(const Vec2u &index_range, const A
     for (Uint axis = 0; axis < 3; ++axis) {
         BinLayer bins[BINS];
         Float extent = bounds.pmax[axis] - bounds.pmin[axis];
-        if (extent < 1e-6f) continue;
+        if (extent < Eps6F)
+            continue;
         Float inv_scale = BINS / extent;
 
         // bin by centroid
@@ -155,7 +162,8 @@ std::pair<Float,Uint> AccelBih::find_split_sah(const Vec2u &index_range, const A
         Float step = extent / BINS;
         Float plane_pos = bounds.pmin[axis] + step;
         for (Uint i = 0; i < BINS-1; ++i, plane_pos += step) {
-            if (left_sl[i].count == 0 || right_sl[i].count == 0) continue;
+            if (left_sl[i].count == 0 || right_sl[i].count == 0)
+                continue;
             Float cost = left_sl[i].area * left_sl[i].count + right_sl[i].area * right_sl[i].count;
 
             if (cost < best_cost) {
@@ -357,3 +365,5 @@ void AccelBih::update()
 
     m_built = true;
 }
+
+#undef STACK_SIZE
