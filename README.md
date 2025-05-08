@@ -13,11 +13,11 @@ Ke spuštění jsou vyžadovány ".obj" soubory z tohoto repozitáře:
 https://github.com/xacond00/VGE_RT
 
 ### Použité knihovny
-SDL (github.com/libsdl-org/SDL)  
+1. SDL (github.com/libsdl-org/SDL)  
  - Slouží k tvorbě oken a zpracování vstupu (viz window.h, program.h)  
-Imgui (github.com/ocornut/imgui )   
+2. Imgui (github.com/ocornut/imgui )   
  - Slouží k tvorbě ovládacích prvků (viz. program.h)  
-PTCR 2.0 (github.com/Panjaksli/PTCR2.0)  
+3. PTCR 2.0 (github.com/Panjaksli/PTCR2.0)  
  - Vlastní repozitář O. Áče, použity z něho byly funkce pro nalezení průsečíku trojúhelníku a AABB (poly.h, aabb.h).
  - Z matematických funkcí byla použita aproximace pro sinus/kosinus (fsin() v vec.h). 
  - Zbytek funkcionalit byl implementován úplně od základu, včetně vektorové knihovny, transformací, paprsků a ostatních náležitostí.
