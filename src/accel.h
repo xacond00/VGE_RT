@@ -34,6 +34,7 @@ class Accel {
 	//virtual ~Accel() {}
 	virtual bool intersect(const Ray &r, HitInfo &rec) const{return false;} 
 	virtual bool ray_test(const Ray &r, Float t = InfF) const{return false;}
+	virtual int hit_edge(const Ray &r) const{return -1;}
 	virtual void update(){}
 	virtual void build(){}
 

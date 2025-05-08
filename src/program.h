@@ -168,6 +168,11 @@ class Program {
 		if(Checkbox("Preview", &renderer.m_preview)){
 			renderer.m_reset = true;
 		}
+		SameLine();
+		if(Checkbox("Show bbox", &renderer.m_bboxes)){
+			renderer.m_reset = true;
+		}
+
 		Spacing();
 
 		// scene selector

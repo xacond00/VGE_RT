@@ -10,6 +10,7 @@ class AccelBvh : public Accel {
 		Node() {}
 		Node(AABB &&bbox, Vec2u &&rng) : bbox(std::move(bbox)), rng(std::move(rng)) {}
 		Node(const AABB &bbox, const Vec2u &rng) : bbox((bbox)), rng((rng)) {}
+		Vec2u rng;
 		AABB bbox;
 		// When left < right, it points to triangle indices
 		// When left > right, it points to next nodes
@@ -17,7 +18,6 @@ class AccelBvh : public Accel {
 		bool leaf() const { return rng[0] < rng[1]; }
 		bool parent() const { return rng[0] > rng[1]; }
 		bool empty() const { return rng[0] == rng[1]; }
-		Vec2u rng;
 	};
 
   public:
@@ -67,7 +67,7 @@ class AccelBvh : public Accel {
 			}
 		}
 #else
-		constexpr Uint stack_size = 128;
+		constexpr Uint stack_size = 64;
 		Uint stack[stack_size];
 		Uint sptr = 0;
 		stack[sptr++] = 0;
@@ -110,6 +110,27 @@ class AccelBvh : public Accel {
 			}
 		}
 		return false;
+	}
+
+	int hit_edge(const Ray &r) const override {
+		constexpr Uint stack_size = 1024;
+		Uint stack[stack_size];
+		Uint sptr = 0;
+		stack[sptr++] = 0;
+		int depth = 0;
+		while (sptr) {
+			const Node &node = m_bvh[stack[--sptr]];
+			auto [hit, edge] = node.bbox.hit_edge2(r);
+			if(edge){
+				return depth;
+			}
+			if (hit && node.parent()) {
+				depth++;
+				stack[sptr++] = node.rng[0];
+				stack[sptr++] = node.rng[1];
+			}
+		}
+		return -1;
 	}
 
 	// Partially sorts poly indices in rng (beg, end)

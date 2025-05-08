@@ -57,6 +57,12 @@ struct AABB{
         auto [mint, maxt] = bounds_check(r);
         return mint < maxt && maxt > 0 && (maxt - mint) < EpsF;
     }
+    std::pair<bool, bool> hit_edge2(const Ray& r)const{
+        auto [mint, maxt] = bounds_check(r);
+        bool hit = mint < maxt && maxt > 0;
+        return {hit, hit && fabsf(maxt - mint) < 0.02 * (pmax - pmin).min()};
+    }
+
 
     friend AABB operator+(AABB a, const AABB& b){
         return a.expand(b);
