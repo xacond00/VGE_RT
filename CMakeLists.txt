@@ -30,6 +30,7 @@ add_executable(vgert
     src/main.cpp
     src/acc_bvh.cpp
     src/acc_bih.cpp
+    src/acc_kdtree.cpp
     src/window.cpp
 )
 
