@@ -14,12 +14,23 @@
      {
          AABB box;
          /* range of indices for the node */
-         Vec2u range;
+        Vec2u range;
+        bool isLeaf = false;
+        uint32_t leftChild;
+        uint32_t rightChild;
  
 		/* constructors */
          Node() = default;
-         Node(const AABB& inputBox, const Vec2u& inputRange);
-         Node(AABB&& inputBox, Vec2u&& inputRange);
+         Node(const AABB& b, const Vec2u& r)
+             : box(b), isLeaf(true), range(r)
+        {
+            /* empty */
+        }
+         Node(const AABB& b, uint32_t left, uint32_t right)
+             : box(b), isLeaf(false), leftChild(left), rightChild(right)
+        {
+            /* empty */
+        }
      };
  
  public:
