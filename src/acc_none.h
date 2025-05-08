@@ -12,7 +12,7 @@ class AccelNone : public Accel {
         // If hit scene bbox
 		if (m_scene.hit_bbox(r)) {
 			// Test all polys in scene
-			for (uint i = 0; i < m_scene.poly_cnt(); i++) {
+			for (Uint i = 0; i < m_scene.poly_cnt(); i++) {
 				hit |= m_scene.intersect(i, r, rec);
 			}
 		}
@@ -20,7 +20,7 @@ class AccelNone : public Accel {
 	}
 	bool ray_test(const Ray &r, Float t = InfF) const override {
 		if (m_scene.hit_bbox(r)) {
-			for (uint i = 0; i < m_scene.poly_cnt(); i++) {
+			for (Uint i = 0; i < m_scene.poly_cnt(); i++) {
 				if (m_scene.ray_test(i, r, t))
 					return true;
 			}

@@ -61,7 +61,7 @@ class AccelBvh : public Accel {
 				else if (h2)
 					stack[sptr++] = {node.rng[0], t2};
 			} else {
-				for (uint i = node.rng[0]; i < node.rng[1]; i++) {
+				for (Uint i = node.rng[0]; i < node.rng[1]; i++) {
 					poly(i).intersect(r, rec);
 				}
 			}
@@ -78,7 +78,7 @@ class AccelBvh : public Accel {
 					stack[sptr++] = node.rng[0];
 					stack[sptr++] = node.rng[1];
 				} else {
-					for (uint i = node.rng[0]; i < node.rng[1]; i++) {
+					for (Uint i = node.rng[0]; i < node.rng[1]; i++) {
 						poly(i).intersect(r, rec);
 					}
 				}
@@ -101,7 +101,7 @@ class AccelBvh : public Accel {
 					stack[sptr++] = node.rng[0];
 					stack[sptr++] = node.rng[1];
 				} else {
-					for (uint i = node.rng[0]; i < node.rng[1]; i++) {
+					for (Uint i = node.rng[0]; i < node.rng[1]; i++) {
 						if (poly(i).ray_test(r, t)) {
 							return true;
 						}
