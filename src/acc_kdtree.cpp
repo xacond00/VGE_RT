@@ -1,6 +1,6 @@
 /**
- * @file acc_kdtree.h
- * @brief Kdtree acceleration structure header.
+ * @file acc_kdtree.c
+ * @brief Kdtree acceleration structure implementation.
  *
  * @author Jozef Bilko
  * @date 2025-05-08
