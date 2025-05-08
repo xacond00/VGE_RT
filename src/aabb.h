@@ -63,6 +63,7 @@ struct AABB{
     }
 
     AABB padded(Float amount = EpsF)const{
+        //auto len = (pmax - pmin) * EpsF + 0.01;
         return {pmin - amount, pmax + amount};
     }
 

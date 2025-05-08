@@ -67,10 +67,9 @@ class AccelBvh : public Accel {
 			}
 		}
 #else
-		constexpr Uint stack_size = 64;
+		constexpr Uint stack_size = 128;
 		Uint stack[stack_size];
 		Uint sptr = 0;
-		bool hit = false;
 		stack[sptr++] = 0;
 		while (sptr) {
 			const Node &node = m_bvh[stack[--sptr]];

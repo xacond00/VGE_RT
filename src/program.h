@@ -40,9 +40,9 @@ class Program {
 	}
 
 	bool run() {
-		double start_t = timer();
 		m_running = true;
 		while (m_running) {
+			double start_t = timer();
 			while (SDL_PollEvent(&event)) {
 				if (event.type == SDL_EVENT_QUIT) {
 					m_running = false;
@@ -73,6 +73,7 @@ class Program {
 				renderer.m_cam.T.rotate(rot * m_dt * 2);
 				renderer.m_reset = true;
 			}
+			m_save_hit = renderer.m_reset;
 			if ((!renderer.m_pause || renderer.m_reset) && m_view->valid() && m_view->shown() && !m_view->minimized()) {
 				auto [pixels, height, pitch] = m_view->get_surf();
 				renderer.set_output((Uint *)pixels, pitch);
@@ -80,10 +81,15 @@ class Program {
 				m_view->set_surf();
 			}
 			m_running = m_view->valid() || m_menu->valid();
+			m_dt = timer(start_t);
+			if(m_save_hit){
+				m_accel_hit_time = m_dt;
+				m_save_hit = false;
+			}
 			m_view->render();
 			m_menu->render();
+			
 		}
-		m_dt = timer(start_t);
 		return true;
 	}
 
@@ -113,6 +119,8 @@ class Program {
 		m_curr_accel_build_time = renderer.m_acc->build_time();
 		m_curr_poly_cnt = renderer.m_scene.poly_cnt();
 		m_curr_accel_nodes_cnt = renderer.m_acc->nodes_cnt();
+		m_save_hit = true;
+		//println("Build in:", m_curr_accel_build_time,"s | Polygons", m_curr_poly_cnt, m_curr_accel_nodes_cnt);
 	}
 
 	// swap in a new Scene and rebuild accel
@@ -192,9 +200,10 @@ class Program {
 		Text("Polygons:     %u", m_curr_poly_cnt);
 		Text("Accel. nodes: %lu", m_curr_accel_nodes_cnt);
 		Text("Accel. build: %.3f ms", m_curr_accel_build_time * 1000);
+		Text("Accel. render: %.3f ms", m_accel_hit_time * 1000);
 		Text("\nIteration: %lu", renderer.m_iteration);
 		ImGuiIO& io = ImGui::GetIO();
-		ImGui::Text("%.3f ms/frame (%.1f FPS)", io.DeltaTime, io.Framerate);
+		ImGui::Text("%.3f ms/frame (%.1f FPS)", io.DeltaTime * 1000, io.Framerate);
 
 		End();
 	};
@@ -207,11 +216,13 @@ class Program {
 	Accel_t m_curr_accel_type = Accel_t::BVH;
 	double m_curr_accel_build_time = 0.0;
 	size_t m_curr_accel_nodes_cnt = 0;
+	double m_accel_hit_time = 0;
 
 	Renderer renderer;
 	std::unique_ptr<Window> m_view;
 	std::unique_ptr<Window> m_menu;
 	SDL_Event event;
+	bool m_save_hit = true;
 	bool m_running = false;
 	double m_dt = 0.1;
 	float m_cam_speed = 2.;
