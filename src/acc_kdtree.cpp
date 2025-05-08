@@ -5,7 +5,7 @@
  * @author Jozef Bilko
  * @date 2025-05-08
  */
-#include "acc_kdtree.h"
+ #include "acc_kdtree.h"
 #include <algorithm>
 
 AccelKdTree::AccelKdTree(const Scene& scene, unsigned inputNodeSize)
@@ -27,7 +27,8 @@ double AccelKdTree::build_time() const
 }
 
 /* override */
-void AccelKdTree::update() {
+void AccelKdTree::update()
+{
     updateKdtree();
     m_built = true;
 }
@@ -126,12 +127,12 @@ std::pair<float, unsigned> AccelKdTree::splitPolygons(const Vec2u& range, const 
     unsigned bestAxis = 0;
     float bestPlane = bbox.center()[0];
 
-    /* find best split axis */
+    /* find best split axis (X, Y, or Z) */
     for (unsigned axis = 0; axis < 3; ++axis)
     {
         binStruct bins[binCount];
         float binSize = bbox.pmax[axis] - bbox.pmin[axis];
-        /* ship useless axis */
+        /* ignore axis with zero length */
         if (binSize < 1e-5f)
         {
             continue;
@@ -139,7 +140,7 @@ std::pair<float, unsigned> AccelKdTree::splitPolygons(const Vec2u& range, const 
 
         float scale = binCount / binSize;
 
-        /* fill w triangles */
+        /* bin polygons */
         for (unsigned i = range[0]; i < range[1]; ++i)
         {
             const AABB& box = vert(i).bbox();
@@ -167,7 +168,7 @@ std::pair<float, unsigned> AccelKdTree::splitPolygons(const Vec2u& range, const 
             rightCounts[i] += bins[i].count;
         }
 
-        /* split pos */
+        /* find best split position */
         for (unsigned i = 1; i < binCount; ++i)
         {
             leftBox.expand(bins[i - 1].bounds);
@@ -183,7 +184,7 @@ std::pair<float, unsigned> AccelKdTree::splitPolygons(const Vec2u& range, const 
         }
     }
 
-    /* split on sorted polygon array */
+    /* split polygons based on chosen axis and plane */
     unsigned splitIdx = sortPolygons(range, bestAxis, bestPlane);
     return {bestCost, splitIdx};
 }
@@ -227,7 +228,6 @@ void AccelKdTree::splitKdtree(unsigned nodeIdx, float& buildCost)
     }
 }
             
-
 unsigned AccelKdTree::sortPolygons(const Vec2u& range, unsigned axis, float plane)
 {
     auto isPolygonInLeftTree = [&](int idx)
@@ -240,12 +240,12 @@ unsigned AccelKdTree::sortPolygons(const Vec2u& range, unsigned axis, float plan
 
     while (left < right)
     {
-        /* if current polygon is on left - move forward */
+        /* if polygon is on left - move forward */
         if (isPolygonInLeftTree(left))
         {
             left++;
         }
-        /* else move m_poly right to this pos */
+        /* else move polygon right */
         else
         {
             right--;
@@ -286,4 +286,3 @@ void AccelKdTree::updateKdtree()
         updateCost = totalCost;
     }
 }
-    
