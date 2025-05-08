@@ -23,11 +23,13 @@ std::pair<Float, Uint> AccelBvh::split_poly(const Vec2u &rng, const AABB &bbox) 
 
 		// Fill bin bboxes with all polygons in rng
 		for (Uint i = rng[0]; i < rng[1]; i++) {
-			auto box = vert(i).bbox();
+			auto box = vert(i);
 			Int id = (box.center()[a] - bbox.pmin[a]) * scale;
 			id = std::max(std::min(id, Int(no_bins - 1)), 0);
 			bin[id].cnt++;
-			bin[id].box.expand(box);
+			for(Uint k = 0; k < 3; k++){
+				bin[id].box.expand(box.data[k]);
+			}
 		}
 
 		layer L[no_bins - 1], R[no_bins - 1];

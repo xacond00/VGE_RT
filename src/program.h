@@ -75,8 +75,8 @@ class Program {
 			}
 			m_save_hit = renderer.m_reset;
 			if ((!renderer.m_pause || renderer.m_reset) && m_view->valid() && m_view->shown() && !m_view->minimized()) {
-				auto [pixels, height, pitch] = m_view->get_surf();
-				renderer.set_output((Uint *)pixels, pitch);
+				auto [pixels, pitch, height] = m_view->get_surf();
+				renderer.set_output((Uint *)pixels, pitch / 4);
 				renderer.render();
 				m_view->set_surf();
 			}

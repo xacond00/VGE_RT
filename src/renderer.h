@@ -66,7 +66,7 @@ class Renderer {
 					Vec3f col = sample(acc, rng, r);
 					film.put(xy0, col); 
 					if (out.data) {
-						out.data[i * dims[0] + j] = vec2bgr(film.read(xy0)); 
+						out.data[i * out.pitch + j] = vec2bgr(film.read(xy0)); 
 					}
 				}
 			}

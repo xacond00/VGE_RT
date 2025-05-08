@@ -10,8 +10,8 @@ class AccelBvh : public Accel {
 		Node() {}
 		Node(AABB &&bbox, Vec2u &&rng) : bbox(std::move(bbox)), rng(std::move(rng)) {}
 		Node(const AABB &bbox, const Vec2u &rng) : bbox((bbox)), rng((rng)) {}
-		Vec2u rng;
 		AABB bbox;
+		Vec2u rng;
 		// When left < right, it points to triangle indices
 		// When left > right, it points to next nodes
 		// When left == right, it is empty
@@ -21,7 +21,7 @@ class AccelBvh : public Accel {
 	};
 
   public:
-	AccelBvh(const Scene &scene, Uint node_size = 4) : Accel(scene, Accel_t::BVH), m_node_size(node_size) {
+	AccelBvh(const Scene &scene, Uint node_size = 8) : Accel(scene, Accel_t::BVH), m_node_size(node_size) {
 		build();
 	}
 
@@ -139,7 +139,7 @@ class AccelBvh : public Accel {
 		Int i = rng[0];
 		Int j = rng[1] - 1;
 		while (i <= j) {
-			if (vert(i).bbox().center()[axis] < plane)
+			if (vert(i).center()[axis] < plane)
 				i++;
 			else
 				std::swap(m_poly[i], m_poly[j--]);
@@ -198,7 +198,7 @@ class AccelBvh : public Accel {
 	double build_time() const override { return m_build_time; }
 
 	std::vector<Node> m_bvh;
-	Uint m_node_size = 4;
+	Uint m_node_size = 8;
 	Float m_update_cost = 0;
 	Float m_build_cost = 0;
 	double m_build_time = 0;
