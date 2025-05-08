@@ -125,6 +125,14 @@ class Renderer {
 		Vec3f result(0);
 		Vec3f weight(1);
 		Uint depth = m_depth;
+		if(m_bboxes){
+			int edge = acc->hit_edge(r);
+			if(edge >= 0){
+				Vec3f cols[4] = {{1,0,0},{0,1,0},{0,0,1},{1,1,0}};
+				return cols[edge % 4];
+			}
+			else return {};
+		}
 		if(m_preview){
 			bool hit = acc->intersect(r, rec);
 			if(!hit){
@@ -164,6 +172,7 @@ class Renderer {
 	Uint m_spp = 1;
 	bool m_reset = true;
 	bool m_pause = true;
+	bool m_bboxes = false;
 	bool m_preview = true;
 	size_t m_iteration = 0;
 };
