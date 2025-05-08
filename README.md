@@ -16,7 +16,7 @@ https://github.com/xacond00/VGE_RT
 SDL (github.com/libsdl-org/SDL)  
  - Slouží k tvorbě oken a zpracování vstupu (viz window.h, program.h)  
 Imgui (github.com/ocornut/imgui )   
- - Slouží k tvorbě ovládacích prvků (viz. program.h)
+ - Slouží k tvorbě ovládacích prvků (viz. program.h)  
 PTCR 2.0 (github.com/Panjaksli/PTCR2.0)  
  - Vlastní repozitář O. Áče, použity z něho byly funkce pro nalezení průsečíku trojúhelníku a AABB (poly.h, aabb.h).
  - Z matematických funkcí byla použita aproximace pro sinus/kosinus (fsin() v vec.h). 
