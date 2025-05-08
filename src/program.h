@@ -179,7 +179,7 @@ class Program {
 
 		// camera
 		auto &T = renderer.m_cam.T;
-		DragFloat("Movement speed", &m_cam_speed, 0.1, 0, 10);
+		DragFloat("Movement speed", &m_cam_speed, 0.1, 0.1, 10);
 		if (SliderFloat3("Cam Pos", T.P.ptr(), -10, 10, "%.3f"))
 			renderer.m_reset = true;
 		if (SliderFloat3("Cam Ang", T.A.ptr(), -Pi2F, Pi2F, "%.3f")) {
@@ -194,7 +194,7 @@ class Program {
 		Text("Accel. build: %.3f ms", m_curr_accel_build_time * 1000);
 		Text("\nIteration: %lu", renderer.m_iteration);
 		ImGuiIO& io = ImGui::GetIO();
-		ImGui::Text("%.3f ms/frame (%.1f FPS)", io.DeltaTime, io.Framerate);
+		ImGui::Text("%.3f ms/frame (%.1f FPS)", io.DeltaTime * 1000, io.Framerate);
 
 		End();
 	};

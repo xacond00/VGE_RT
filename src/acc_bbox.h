@@ -37,4 +37,7 @@ class AccelBbox : public Accel {
 	}
 	void update() override { m_built = true; };
 	void build() override { m_built = true; }
+
+	size_t nodes_cnt()  const override { return m_scene.m_mesh.size(); }
+	double build_time() const override { return 0; }
 };
