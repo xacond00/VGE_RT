@@ -111,7 +111,6 @@ void AccelBih::build()
     Float total_cost = 0.0f;
     build_node_recursive(0, total_cost);
     last_build_cost  = total_cost;
-    last_update_cost = total_cost;
     m_built          = true;
 
     last_build_time = timer(build_timer);
@@ -340,28 +339,26 @@ inline void AccelBih::compute_child_hit_intervals(
 void AccelBih::update()
 {
     Float refit_cost = 0.0f;
-    // walk backwards so parents can use updated child bounds
+    
+    // backwards pass so parents are refitted on updated children
     for (size_t idx = nodes.size(); idx-- > 0; ) {
         BihNode &node = nodes[idx];
         if (node.is_leaf()) {
-            // recompute leaf bounds
             node.bounds = bbox_in(node.index_range);
             refit_cost += node.bounds.area() * Float(node.index_range[1] - node.index_range[0]);
         
         } else if (node.is_internal()) {
-            const BihNode &l = nodes[node.index_range[0]];
-            const BihNode &r = nodes[node.index_range[1]];
-            node.bounds     = l.bounds + r.bounds;
-            node.left_max   = l.bounds.pmax[node.split_axis];
-            node.right_min  = r.bounds.pmin[node.split_axis];
+            const BihNode &right = nodes[node.index_range[0]];
+            const BihNode &left  = nodes[node.index_range[1]];
+
+            node.bounds    = left.bounds + right.bounds;
+            node.left_max  = left.bounds.pmax[node.split_axis];
+            node.right_min = right.bounds.pmin[node.split_axis];
         }
     }
 
-    // rebuild if refit is too expensive
     if (refit_cost > 1.2f * last_build_cost)
         build();
-    else
-        last_update_cost = refit_cost;
 
     m_built = true;
 }
