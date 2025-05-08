@@ -16,8 +16,8 @@
          /* range of indices for the node */
         Vec2u range;
         bool isLeaf = false;
-        uint32_t leftChild;
-        uint32_t rightChild;
+        unsigned leftChild;
+        unsigned rightChild;
  
 		/* constructors */
          Node() = default;
@@ -26,7 +26,7 @@
         {
             /* empty */
         }
-         Node(const AABB& b, uint32_t left, uint32_t right)
+         Node(const AABB& b, unsigned left, unsigned right)
              : box(b), isLeaf(false), leftChild(left), rightChild(right)
         {
             /* empty */

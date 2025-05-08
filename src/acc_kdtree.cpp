@@ -211,10 +211,10 @@
              Vec2u leftRange(start, mi);
              Vec2u rightRange(mi, end);
  
-             uint32_t leftIdx = m_kdtree.size();
+             unsigned leftIdx = m_kdtree.size();
              m_kdtree.emplace_back(bbox_in(leftRange), leftRange);
  
-             uint32_t rightIdx = m_kdtree.size();
+             unsigned rightIdx = m_kdtree.size();
              m_kdtree.emplace_back(bbox_in(rightRange), rightRange);
  
              node = Node(bbox, leftIdx, rightIdx);
