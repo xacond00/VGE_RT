@@ -50,6 +50,7 @@ void AccelKdTree::build()
     buildTime = timer(elapsedTime);
 }
 
+/* override */
 bool AccelKdTree::intersect(const Ray& r, HitInfo& rec) const
 {
     unsigned stack[64];
@@ -78,7 +79,6 @@ bool AccelKdTree::intersect(const Ray& r, HitInfo& rec) const
     }
     return rec.idx != -1;
 }
-
 
 /* override */
 bool AccelKdTree::ray_test(const Ray& r, float t) const
@@ -112,7 +112,6 @@ bool AccelKdTree::ray_test(const Ray& r, float t) const
     }
     return false;
 }
-
 
 std::pair<float, unsigned> AccelKdTree::splitPolygons(const Vec2u& range, const AABB& bbox)
 {
@@ -212,7 +211,6 @@ void AccelKdTree::splitKdtree(unsigned nodeIdx, float& buildCost)
             uint32_t rightIdx = m_kdtree.size();
             m_kdtree.emplace_back(bbox_in(rightRange), rightRange);
 
-            // Prepíš pôvodný node na vnútorný
             node = Node(bbox, leftIdx, rightIdx);
 
             splitKdtree(leftIdx, buildCost);
