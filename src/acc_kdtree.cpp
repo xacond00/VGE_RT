@@ -50,10 +50,6 @@ void AccelKdTree::build()
     buildTime = timer(elapsedTime);
 }
 
-    /* dfs tree traverse */
-        /* check hit on aabb */
-                /* test polygons in range */
-/* override */
 bool AccelKdTree::intersect(const Ray& r, HitInfo& rec) const
 {
     unsigned stack[64];
@@ -193,9 +189,6 @@ std::pair<float, unsigned> AccelKdTree::splitPolygons(const Vec2u& range, const 
     return {bestCost, splitIdx};
 }
 
-        /* split node and assign polygons between them */
-            /* create child nodes */
-            /* split children */
 void AccelKdTree::splitKdtree(unsigned nodeIdx, float& buildCost)
 {
     Node& node = m_kdtree[nodeIdx];
@@ -264,39 +257,35 @@ unsigned AccelKdTree::sortPolygons(const Vec2u& range, unsigned axis, float plan
     return left;
 }
 
-    /* bottom-up tree traverse */
-            /* create new aabb for this node */
-            /* create new aabb based on the children */
-    /* if new cost is worse than original, rebuild tree */
-    void AccelKdTree::updateKdtree()
+void AccelKdTree::updateKdtree()
+{
+    double t_start = timer();
+    float totalCost = 0.0f;
+
+    for (int i = static_cast<int>(m_kdtree.size()) - 1; i >= 0; i--)
     {
-        double t_start = timer();
-        float totalCost = 0.0f;
-    
-        for (int i = static_cast<int>(m_kdtree.size()) - 1; i >= 0; i--)
+        Node& node = m_kdtree[i];
+
+        if (node.isLeaf)
         {
-            Node& node = m_kdtree[i];
-    
-            if (node.isLeaf)
-            {
-                node.box = bbox_in(node.range);
-                totalCost += node.box.area() * (node.range[1] - node.range[0]);
-            }
-            else
-            {
-                const AABB& leftBox  = m_kdtree[node.leftChild].box;
-                const AABB& rightBox = m_kdtree[node.rightChild].box;
-                node.box = leftBox + rightBox;
-            }
-        }
-    
-        if (totalCost > 1.2f * buildCost)
-        {
-            build();
+            node.box = bbox_in(node.range);
+            totalCost += node.box.area() * (node.range[1] - node.range[0]);
         }
         else
         {
-            updateCost = totalCost;
+            const AABB& leftBox  = m_kdtree[node.leftChild].box;
+            const AABB& rightBox = m_kdtree[node.rightChild].box;
+            node.box = leftBox + rightBox;
         }
     }
+
+    if (totalCost > 1.2f * buildCost)
+    {
+        build();
+    }
+    else
+    {
+        updateCost = totalCost;
+    }
+}
     
