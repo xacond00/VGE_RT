@@ -5,7 +5,7 @@
 struct Ray{
     Ray(){}
     Ray(Vec3f O, Vec3f D) : O(O), D(D), iD(rcp(D)){}
-    Ray(Vec3f O, Vec3f _D, bool norm) : O(O), D(_D), iD(rcp(D)){}
+    Ray(Vec3f O, Vec3f _D, bool normalized) : O(O), D(norm(_D)), iD(rcp(D)){}
     Vec3f at(Float t){
         return O + Vec3f(t) * D;
     }

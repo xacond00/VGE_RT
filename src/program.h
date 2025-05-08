@@ -66,6 +66,13 @@ class Program {
 
 				renderer.m_reset = true;
 			}
+			if (m_view->keyboard_focus() &&
+				(m_keys[SDL_SCANCODE_LEFT] || m_keys[SDL_SCANCODE_RIGHT] || m_keys[SDL_SCANCODE_UP] || m_keys[SDL_SCANCODE_DOWN] ||
+				 m_keys[SDL_SCANCODE_SPACE] || m_keys[SDL_SCANCODE_LCTRL])) {
+				auto rot = Vec3f(Float(m_keys[SDL_SCANCODE_DOWN]- m_keys[SDL_SCANCODE_UP]), m_keys[SDL_SCANCODE_LEFT] - Float( m_keys[SDL_SCANCODE_RIGHT]));
+				renderer.m_cam.T.rotate(rot * m_dt * 2);
+				renderer.m_reset = true;
+			}
 			if ((!renderer.m_pause || renderer.m_reset) && m_view->valid() && m_view->shown() && !m_view->minimized()) {
 				auto [pixels, height, pitch] = m_view->get_surf();
 				renderer.set_output((Uint *)pixels, pitch);
@@ -120,7 +127,7 @@ class Program {
 			scale = 1.2f;
 		} else if (m_scene_labels[scene_idx] == "sponza.obj") {
 			renderer.m_cam = Camera(600, 600, 90, Transform(Vec3f(3, 5, -0.5f), Vec3f(0, PihF, 0), 1));
-			scale = 0.01f;
+			scale = 0.05f;
 		} else if (m_scene_labels[scene_idx] == "dragon.obj") {
 			renderer.m_cam = Camera(600, 600, 80, Transform(Vec3f(5.8, 0.2, -3), Vec3f(0, -4, 0), 1));
 			scale = 0.05f;
@@ -149,6 +156,10 @@ class Program {
 		// Pause button
 		if (Button(renderer.m_pause ? "Unpause" : "Pause"))
 			renderer.m_pause = !renderer.m_pause;
+		SameLine();
+		if(Checkbox("Preview", &renderer.m_preview)){
+			renderer.m_reset = true;
+		}
 		Spacing();
 
 		// scene selector
@@ -203,7 +214,7 @@ class Program {
 	SDL_Event event;
 	bool m_running = false;
 	double m_dt = 0.1;
-	float m_cam_speed = 1;
+	float m_cam_speed = 2.;
 
 	std::vector<bool> m_keys = std::vector<bool>(512, false);
 };

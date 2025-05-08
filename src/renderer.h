@@ -56,8 +56,8 @@ class Renderer {
 		const unsigned num_threads = std::thread::hardware_concurrency();
 		std::vector<std::thread> threads;
 		// Parallel for loop
-		auto render_chunk = [&](Uint start_row, Uint end_row) { 
-            RNG rng = RNG(std::rand() + 1);
+		auto render_chunk = [&](Uint start_row, Uint end_row, Uint seed) { 
+            RNG rng = RNG(seed + 1);
 			for (Uint i = start_row; i < end_row; ++i) {
 				for (Uint j = 0; j < dims[0]; ++j) {
 					Vec2u xy0(j, i);
@@ -78,7 +78,7 @@ class Renderer {
 		Uint start_row = 0;
 		for (Uint t = 0; t < num_threads; ++t) {
 			Uint end_row = start_row + rows_per_thread + (t < remaining_rows ? 1 : 0);
-			threads.emplace_back(render_chunk, start_row, end_row);
+			threads.emplace_back(render_chunk, start_row, end_row, std::rand());
 			start_row = end_row;
 		}
 
@@ -125,6 +125,14 @@ class Renderer {
 		Vec3f result(0);
 		Vec3f weight(1);
 		Uint depth = m_depth;
+		if(m_preview){
+			bool hit = acc->intersect(r, rec);
+			if(!hit){
+				return {};
+			}
+			SurfaceInfo si = m_scene.surface_info(rec);
+			return Vec3f{std::abs(dot(si.N, r.D))};
+		}
 		while (depth > 0) {
 			bool hit = acc->intersect(r, rec);
 			if (!hit) { // Sky
@@ -156,5 +164,6 @@ class Renderer {
 	Uint m_spp = 1;
 	bool m_reset = true;
 	bool m_pause = true;
+	bool m_preview = true;
 	size_t m_iteration = 0;
 };
